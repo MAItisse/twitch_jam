@@ -12,6 +12,7 @@ COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 
 COPY . .
+RUN cargo test --release
 RUN cargo build --release
 
 FROM debian
@@ -20,4 +21,6 @@ WORKDIR /app
 COPY --from=builder /app/target/release/server .
 
 ENV ROCKET_ADDRESS=0.0.0.0
+ENV ROCKET_LOG_LEVEL=normal
+
 CMD ["./server"]
