@@ -38,7 +38,6 @@
 
 #[macro_use]
 extern crate rocket;
-
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 
@@ -46,6 +45,11 @@ use rocket::http::Status;
 use rocket::response::status;
 use rocket::serde::json::Json;
 use rocket::{Request, State};
+use rocket_okapi::okapi::openapi3::{Response, Responses};
+use rocket_okapi::okapi::schemars;
+use rocket_okapi::response::{OpenApiResponder, OpenApiResponderInner};
+use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig};
+use rocket_okapi::{openapi, openapi_get_routes, JsonSchema};
 use serde::{Deserialize, Serialize};
 
 /// The host we are at
@@ -55,7 +59,7 @@ const HOST: &str = "http://localhost:8000";
 type UserId = Arc<str>;
 
 /// A lobby is one instance of a game, one per channel
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema)]
 struct Lobby {
     /// Streamer who created the lobby
     owner: UserId,
@@ -92,6 +96,30 @@ enum Errors {
     /// We have no clue what happend
     #[response(status = 500)]
     Unknown(String),
+}
+
+impl OpenApiResponderInner for Errors {
+    fn responses(_: &mut rocket_okapi::gen::OpenApiGenerator) -> rocket_okapi::Result<Responses> {
+        let mut responses = Responses::default();
+        responses
+            .responses
+            .entry("404".to_owned())
+            .or_insert_with(|| {
+                let mut response = Response::default();
+                response.description = "The resource was not found.".to_owned();
+                response.into()
+            });
+        responses
+            .responses
+            .entry("409".to_owned())
+            .or_insert_with(|| {
+                let mut response = Response::default();
+                response.description =
+                    "You attempted to create a resource that already exsists".to_owned();
+                response.into()
+            });
+        Ok(responses)
+    }
 }
 
 /// Extension for Result for convenient shit
@@ -140,12 +168,16 @@ fn default_catcher(status: Status, _request: &Request) -> Json<GenericError> {
 }
 
 /// Return a simple message to show we are working
+#[openapi]
 #[get("/")]
 const fn index() -> &'static str {
     "I am online!"
 }
 
 /// Create a new lobby for the specifed user
+///
+/// Returns a key to be used when connecting to `/lobby/connect/streamer`
+#[openapi]
 #[post("/lobby/new?<user>")]
 fn new_lobby(user: &str, lobbies: &State<Lobbies>) -> Result<status::Created<String>, Errors> {
     let user = Arc::from(user);
@@ -166,6 +198,7 @@ fn new_lobby(user: &str, lobbies: &State<Lobbies>) -> Result<status::Created<Str
 }
 
 /// Get info on the specific lobby
+#[openapi]
 #[get("/debug/get_lobby?<user>")]
 fn get_lobby(user: &str, lobbies: &State<Lobbies>) -> Result<Json<Lobby>, Errors> {
     let user = Arc::from(user);
@@ -182,8 +215,15 @@ fn get_lobby(user: &str, lobbies: &State<Lobbies>) -> Result<Json<Lobby>, Errors
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index, new_lobby, get_lobby])
+        .mount("/", openapi_get_routes![index, new_lobby, get_lobby])
         .register("/", catchers![default_catcher])
+        .mount(
+            "/swagger-ui/",
+            make_swagger_ui(&SwaggerUIConfig {
+                url: "../openapi.json".to_owned(),
+                ..Default::default()
+            }),
+        )
         .manage(Lobbies::default())
 }
 
