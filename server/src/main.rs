@@ -47,7 +47,7 @@ use rocket::serde::json::Json;
 use rocket::{Request, State};
 use rocket_okapi::okapi::openapi3::{Response, Responses};
 use rocket_okapi::okapi::schemars;
-use rocket_okapi::response::{OpenApiResponder, OpenApiResponderInner};
+use rocket_okapi::response::OpenApiResponderInner;
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig};
 use rocket_okapi::{openapi, openapi_get_routes, JsonSchema};
 use serde::{Deserialize, Serialize};
@@ -72,7 +72,7 @@ impl Lobby {
     fn new(owner: UserId) -> Self {
         Self {
             owner,
-            streamer_key: "Viv is cool".into(),
+            streamer_key: uuid::Uuid::new_v4().to_string(),
         }
     }
 }
@@ -90,6 +90,12 @@ enum Errors {
     /// Not found
     #[response(status = 404)]
     NotFound(String),
+    /// Not allowed
+    #[response(status = 403)]
+    NotAllowed(String),
+    /// Another socket is already connected
+    #[response(status = 409)]
+    AlreadyConnected(String),
     /// Already Exsists
     #[response(status = 409)]
     LobbyAlreadyExsists(String),
@@ -101,23 +107,20 @@ enum Errors {
 impl OpenApiResponderInner for Errors {
     fn responses(_: &mut rocket_okapi::gen::OpenApiGenerator) -> rocket_okapi::Result<Responses> {
         let mut responses = Responses::default();
-        responses
-            .responses
-            .entry("404".to_owned())
-            .or_insert_with(|| {
-                let mut response = Response::default();
-                response.description = "The resource was not found.".to_owned();
-                response.into()
-            });
-        responses
-            .responses
-            .entry("409".to_owned())
-            .or_insert_with(|| {
-                let mut response = Response::default();
-                response.description =
-                    "You attempted to create a resource that already exsists".to_owned();
-                response.into()
-            });
+        responses.responses.entry("404".to_owned()).or_insert(
+            Response {
+                description: "The resource was not found.".to_owned(),
+                ..Default::default()
+            }
+            .into(),
+        );
+        responses.responses.entry("409".to_owned()).or_insert(
+            Response {
+                description: "You attempted to create a resource that already exsists".to_owned(),
+                ..Default::default()
+            }
+            .into(),
+        );
         Ok(responses)
     }
 }
@@ -184,6 +187,7 @@ fn new_lobby(user: &str, lobbies: &State<Lobbies>) -> Result<status::Created<Str
     let mut channels = lobbies.channels.write().unknown()?;
 
     if channels.contains_key(&user) {
+        log::warn!("Somebody tried to create a new lobby that already exsists.");
         return Err(Errors::LobbyAlreadyExsists("Lobby already in play, please close exsisting game instance or wait for previous lobby to timeout".into()));
     }
 
@@ -207,15 +211,53 @@ fn get_lobby(user: &str, lobbies: &State<Lobbies>) -> Result<Json<Lobby>, Errors
     if let Some(lobby) = channels.get(&user) {
         Ok(Json(lobby.clone()))
     } else {
-        Err(Errors::NotFound((*user).into()))
+        Err(Errors::NotFound("Lobby not found".to_owned()))
     }
+}
+
+/// Connect to the lobby as a streamer
+#[openapi(skip)]
+#[get("/lobby/connect/streamer?<user>&<key>")]
+fn connect_streamer(
+    ws: ws::WebSocket,
+    user: &str,
+    key: &str,
+    lobbies: &State<Lobbies>,
+) -> Result<ws::Stream!['static], Errors> {
+    let channels = lobbies.channels.read().unknown()?;
+    let Some(lobby) = channels.get(user) else {
+        log::warn!("Streamer tried to connect to unknown lobby.");
+        return Err(Errors::NotFound("You dont have a lobby open".into()));
+    };
+
+    if key != lobby.streamer_key {
+        log::warn!(
+            "Streamer provided wrong key, expected {}",
+            lobby.streamer_key,
+        );
+        return Err(Errors::NotAllowed("Wrong key!".into()));
+    }
+
+    let result = {
+        ws::Stream! { ws =>
+            for await message in ws {
+                let message = message?;
+                log::info!("Echoing {message}");
+                yield message;
+            }
+        }
+    };
+    Ok(result)
 }
 
 /// Start the server
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", openapi_get_routes![index, new_lobby, get_lobby])
+        .mount(
+            "/",
+            openapi_get_routes![index, new_lobby, get_lobby, connect_streamer],
+        )
         .register("/", catchers![default_catcher])
         .mount(
             "/swagger-ui/",
