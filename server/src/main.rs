@@ -53,7 +53,7 @@ use rocket_okapi::{openapi, openapi_get_routes, JsonSchema};
 use serde::{Deserialize, Serialize};
 
 /// The host we are at
-const HOST: &str = "http://localhost:8000";
+const HOST: &str = "localhost:8000";
 
 /// Twitch user id
 type UserId = Arc<str>;
@@ -195,7 +195,7 @@ fn new_lobby(user: &str, lobbies: &State<Lobbies>) -> Result<status::Created<Str
     channels.insert(Arc::clone(&user), lobby.clone());
 
     Ok(status::Created::new(format!(
-        "{HOST}/lobby/connect/streamer?user={user}&key={}",
+        "ws://{HOST}/lobby/connect/streamer?user={user}&key={}",
         lobby.streamer_key
     ))
     .body(lobby.streamer_key))
