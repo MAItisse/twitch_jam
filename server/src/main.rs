@@ -1,3 +1,5 @@
+//! Game server
+
 #![warn(
     clippy::pedantic,
     clippy::clone_on_ref_ptr,
@@ -34,6 +36,17 @@
     clippy::tests_outside_test_module
 )]
 
-fn main() {
-    println!("Hello Docker!");
+#[macro_use]
+extern crate rocket;
+
+/// Return a simple message to show we are working
+#[get("/")]
+const fn index() -> &'static str {
+    "I am online!"
+}
+
+/// Start the server
+#[launch]
+fn rocket() -> _ {
+    rocket::build().mount("/", routes![index])
 }

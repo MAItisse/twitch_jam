@@ -1,3 +1,8 @@
 services:
   server:
     build: .
+    ports:
+      - 8000:8000
+    environment:
+      ROCKET_ADDRESS: 0.0.0.0
+      ROCKET_PORT: 8000
