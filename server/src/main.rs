@@ -195,7 +195,7 @@ fn new_lobby(user: &str, lobbies: &State<Lobbies>) -> Result<status::Created<Str
     channels.insert(Arc::clone(&user), lobby.clone());
 
     Ok(status::Created::new(format!(
-        "{HOST}/lobby/connect?user={user}&key={}",
+        "{HOST}/lobby/connect/streamer?user={user}&key={}",
         lobby.streamer_key
     ))
     .body(lobby.streamer_key))
