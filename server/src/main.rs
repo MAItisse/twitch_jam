@@ -310,7 +310,7 @@ fn connect_user(
 
     let lobby_channels_lock = lobby.channels.read().unknown()?;
     let Some(lobby_channels) = lobby_channels_lock.as_ref() else {
-        log::warn!("Viewer tried to lobby a.");
+        log::warn!("Viewer tried to lobby a that doesnt have a streamer connected yet.");
         return Err(Errors::NotFound(
             "The game has not yet connected to this lobby".to_owned(),
         ));
