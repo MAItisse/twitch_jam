@@ -85,40 +85,44 @@
 </body>
 <script>
 
-    // Replace with your WebSocket server URL
-    const wsUrl = "http://localhost:8000/lobby/connect/streamer?user=mantis&key=6bbd7b1d-cd9a-4cec-887f-7f5a774dc35f";
-
-    // Create a new WebSocket instance
-    const socket = new WebSocket(wsUrl);
-
+    let channelId = "";
     
+    
+    window.Twitch.ext.onAuthorized(function(auth) {
+        console.log('The JWT that will be passed to the EBS is', auth.token);
+        console.log('The channel ID is', auth.channelId);
+        channelId = auth.channelId;
+        let wsUrl = "ws://localhost:8000/lobby/connect?user="+channelId;
+        console.log(wsUrl);
+        // Create a new WebSocket instance
+        const socket = new WebSocket(wsUrl);
+
+            // Event listener for connection open
+        socket.addEventListener('open', function (event) {
+            console.log('Connected to the WebSocket server');
+            // You can send a message to the server here if needed
+            socket.send('Hello Server!');
+        });
+
+        // Event listener for receiving messages from the server
+        socket.addEventListener('message', function (event) {
+            console.log('Message from server:', event.data);
+            // Handle the received message
+        });
+
+        // Event listener for connection close
+        socket.addEventListener('close', function (event) {
+            console.log('Disconnected from the WebSocket server');
+        });
+
+        // Event listener for errors
+        socket.addEventListener('error', function (event) {
+            console.error('WebSocket error:', event);
+        });
 
     let animationDuration = 3; // Default duration in seconds
     let bubbleColor = '#00ff00';
     let bubbleSize = 50;
-
-    // Event listener for connection open
-    socket.addEventListener('open', function (event) {
-        console.log('Connected to the WebSocket server');
-        // You can send a message to the server here if needed
-        socket.send('Hello Server!');
-    });
-
-    // Event listener for receiving messages from the server
-    socket.addEventListener('message', function (event) {
-        console.log('Message from server:', event.data);
-        // Handle the received message
-    });
-
-    // Event listener for connection close
-    socket.addEventListener('close', function (event) {
-        console.log('Disconnected from the WebSocket server');
-    });
-
-    // Event listener for errors
-    socket.addEventListener('error', function (event) {
-        console.error('WebSocket error:', event);
-    });
 
     // Function to send a message to the server
     function sendMessage(message) {
@@ -172,13 +176,8 @@
         bubble.addEventListener('animationend', () => {
             bubble.remove();
         });
-
-        
-
-    // Example usage: sending a message after 2 seconds
-    // setTimeout(() => {
-    //     sendMessage('Hello again, Server!');
-    // }, 2000);
     });
+});
+
 </script>
 </html>
