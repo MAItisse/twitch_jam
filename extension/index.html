@@ -19,9 +19,6 @@
             overflow: hidden; /* Prevent scrolling */
             position: relative;
         }
-        h1 {
-            z-index: 100; /* Ensure the text is above other content */
-        }
         @keyframes expand {
             from {
                 transform: scale(.1);
@@ -35,7 +32,6 @@
         .bubble {
             position: absolute;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(0, 255, 0, 0.5), rgba(255, 0, 0, 0.25));
             pointer-events: none; /* Make bubbles not interactive */
         }
         #settings-button {
@@ -69,7 +65,6 @@
     </style>
 </head>
 <body>
-    <!-- <h1>Hello World, qaerty</h1> -->
     <button id="settings-button">Settings</button>
     <div id="settings-menu">
         <label>
@@ -84,20 +79,13 @@
     </div>
 </body>
 <script>
-
-    let channelId = "";
-    
-    
     window.Twitch.ext.onAuthorized(function(auth) {
-        console.log('The JWT that will be passed to the EBS is', auth.token);
+        // console.log('The JWT that will be passed to the EBS is', auth.token);
         console.log('The channel ID is', auth.channelId);
-        channelId = auth.channelId;
-        let wsUrl = "ws://localhost:8000/lobby/connect?user="+channelId;
+        let wsUrl = "wss://websocket.matissetec.dev/lobby/connect?user="+auth.channelId;
         console.log(wsUrl);
-        // Create a new WebSocket instance
         const socket = new WebSocket(wsUrl);
 
-            // Event listener for connection open
         socket.addEventListener('open', function (event) {
             console.log('Connected to the WebSocket server');
             // You can send a message to the server here if needed
@@ -110,74 +98,71 @@
             // Handle the received message
         });
 
-        // Event listener for connection close
         socket.addEventListener('close', function (event) {
             console.log('Disconnected from the WebSocket server');
         });
 
-        // Event listener for errors
         socket.addEventListener('error', function (event) {
             console.error('WebSocket error:', event);
         });
 
-    let animationDuration = 3; // Default duration in seconds
-    let bubbleColor = '#00ff00';
-    let bubbleSize = 50;
+        let animationDuration = 3; // Default duration in seconds
+        let bubbleColor = '#00ff00';
+        let bubbleSize = 50;
 
-    // Function to send a message to the server
-    function sendMessage(message) {
-        if (socket.readyState === WebSocket.OPEN) {
-            socket.send(message);
-        } else {
-            console.error('WebSocket is not open. Ready state:', socket.readyState);
+        // send message to server
+        function sendMessage(message) {
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send(message);
+            } else {
+                console.error('WebSocket is not open. Ready state:', socket.readyState);
+            }
         }
-    }
 
-    window.Twitch.ext.onContext(function(context) {
-        console.log(context.hlsLatencyBroadcaster);
-        animationDuration = Math.max(1, Math.min(10, context.hlsLatencyBroadcaster)); // Adjusting duration between 1 and 10 seconds
-    });
+        window.Twitch.ext.onContext(function(context) {
+            console.log(context.hlsLatencyBroadcaster);
+            animationDuration = Math.max(1, Math.min(10, context.hlsLatencyBroadcaster)); // Adjusting duration between 1 and 10 seconds
+        });
 
-    document.getElementById('settings-button').addEventListener('click', function() {
-        const settingsMenu = document.getElementById('settings-menu');
-        settingsMenu.style.display = settingsMenu.style.display === 'none' ? 'block' : 'none';
-    });
-    
-    document.getElementById('save-settings').addEventListener('click', function() {
-        bubbleColor = document.getElementById('bubble-color').value;
-        bubbleSize = parseInt(document.getElementById('bubble-size').value, 10);
-        document.getElementById('settings-menu').style.display = 'none';
-        sendMessage('bubbleColor '+ bubbleColor);
-        sendMessage('bubbleSize '+ bubbleSize);
-    });
-
-    document.addEventListener('click', function(event) {
-        socket.send('x: ' + event.clientX / window.innerWidth);
-        socket.send('y: ' + event.clientY / window.innerHeight);
+        document.getElementById('settings-button').addEventListener('click', function() {
+            const settingsMenu = document.getElementById('settings-menu');
+            settingsMenu.style.display = settingsMenu.style.display === 'none' ? 'block' : 'none';
+        });
         
-        // Create a new bubble
-        const bubble = document.createElement('div');
-        bubble.classList.add('bubble');
+        document.getElementById('save-settings').addEventListener('click', function() {
+            bubbleColor = document.getElementById('bubble-color').value;
+            bubbleSize = parseInt(document.getElementById('bubble-size').value, 10);
+            document.getElementById('settings-menu').style.display = 'none';
+            sendMessage('bubbleColor '+ bubbleColor);
+            sendMessage('bubbleSize '+ bubbleSize);
+        });
 
-        // Set the bubble's position and properties
-        bubble.style.width = `${bubbleSize}px`;
-        bubble.style.height = `${bubbleSize}px`;
-        bubble.style.left = `${event.clientX - bubbleSize / 2}px`; // Center the bubble on the click
-        bubble.style.top = `${event.clientY - bubbleSize / 2}px`;  // Center the bubble on the click
-        bubble.style.background = `radial-gradient(circle, ${bubbleColor}80, ${bubbleColor}40)`;
+        document.addEventListener('click', function(event) {
+            socket.send('x: ' + event.clientX / window.innerWidth);
+            socket.send('y: ' + event.clientY / window.innerHeight);
+            
+            // Create a new bubble
+            const bubble = document.createElement('div');
+            bubble.classList.add('bubble');
 
-        // Set the animation duration based on the latency
-        bubble.style.animation = `expand ${animationDuration}s forwards`;
+            // Set the bubble's position and properties
+            bubble.style.width = `${bubbleSize}px`;
+            bubble.style.height = `${bubbleSize}px`;
+            bubble.style.left = `${event.clientX - bubbleSize / 2}px`; // Center the bubble on the click
+            bubble.style.top = `${event.clientY - bubbleSize / 2}px`;  // Center the bubble on the click
+            bubble.style.background = `radial-gradient(circle, ${bubbleColor}80, ${bubbleColor}40)`;
 
-        // Append the bubble to the body
-        document.body.appendChild(bubble);
+            // Set the animation duration based on the latency
+            bubble.style.animation = `expand ${animationDuration}s forwards`;
 
-        // Remove the bubble from the DOM after the animation completes
-        bubble.addEventListener('animationend', () => {
-            bubble.remove();
+            // Append the bubble to the body
+            document.body.appendChild(bubble);
+
+            // Remove the bubble from the DOM after the animation completes
+            bubble.addEventListener('animationend', () => {
+                bubble.remove();
+            });
         });
     });
-});
-
 </script>
 </html>
