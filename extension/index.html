@@ -85,6 +85,7 @@
         let wsUrl = "wss://websocket.matissetec.dev/lobby/connect?user="+auth.channelId;
         console.log(wsUrl);
         const socket = new WebSocket(wsUrl);
+        const userId = auth.userId;
 
         socket.addEventListener('open', function (event) {
             console.log('Connected to the WebSocket server');
@@ -133,13 +134,21 @@
             bubbleColor = document.getElementById('bubble-color').value;
             bubbleSize = parseInt(document.getElementById('bubble-size').value, 10);
             document.getElementById('settings-menu').style.display = 'none';
-            sendMessage('bubbleColor '+ bubbleColor);
-            sendMessage('bubbleSize '+ bubbleSize);
+            data = {
+                bubbleColor: bubbleColor,
+                bubbleSize: bubbleSize,
+                userId: userId
+            }
+            sendMessage(JSON.stringify(data));
         });
 
         document.addEventListener('click', function(event) {
-            socket.send('x: ' + event.clientX / window.innerWidth);
-            socket.send('y: ' + event.clientY / window.innerHeight);
+            data = {
+                x: event.clientX / window.innerWidth,
+                y: event.clientY / window.innerHeight,
+                userId: userId
+            }
+            socket.send(JSON.stringify(data));
             
             // Create a new bubble
             const bubble = document.createElement('div');
