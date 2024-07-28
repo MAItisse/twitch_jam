@@ -41,9 +41,12 @@ extern crate rocket;
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 
+use log::{error, warn};
+use rocket::futures::{SinkExt, StreamExt};
 use rocket::http::Status;
 use rocket::response::status;
 use rocket::serde::json::Json;
+use rocket::tokio::sync;
 use rocket::{Request, State};
 use rocket_okapi::okapi::openapi3::{Response, Responses};
 use rocket_okapi::okapi::schemars;
@@ -58,13 +61,24 @@ const HOST: &str = "localhost:8000";
 /// Twitch user id
 type UserId = Arc<str>;
 
+/// Holds the communication channels for proxying events between the streamer and the clients
+#[derive(Debug)]
+struct LobbyChannels {
+    /// Client --> Streamer
+    client_to_streamer: sync::mpsc::Sender<ws::Message>,
+    /// Streamer --> Client
+    streamer_to_client: sync::broadcast::Receiver<ws::Message>,
+}
+
 /// A lobby is one instance of a game, one per channel
-#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema)]
+#[derive(Debug)]
 struct Lobby {
     /// Streamer who created the lobby
     owner: UserId,
     /// Key required for the streamer to connect to the socket
     streamer_key: String,
+    /// Channels for communication
+    channels: RwLock<Option<LobbyChannels>>,
 }
 
 impl Lobby {
@@ -73,6 +87,7 @@ impl Lobby {
         Self {
             owner,
             streamer_key: uuid::Uuid::new_v4().to_string(),
+            channels: RwLock::new(None),
         }
     }
 }
@@ -192,38 +207,24 @@ fn new_lobby(user: &str, lobbies: &State<Lobbies>) -> Result<status::Created<Str
     }
 
     let lobby = Lobby::new(Arc::clone(&user));
-    channels.insert(Arc::clone(&user), lobby.clone());
+    let key = lobby.streamer_key.clone();
+    channels.insert(Arc::clone(&user), lobby);
 
     Ok(status::Created::new(format!(
-        "ws://{HOST}/lobby/connect/streamer?user={user}&key={}",
-        lobby.streamer_key
+        "ws://{HOST}/lobby/connect/streamer?user={user}&key={key}"
     ))
-    .body(lobby.streamer_key))
-}
-
-/// Get info on the specific lobby
-#[openapi]
-#[get("/debug/get_lobby?<user>")]
-fn get_lobby(user: &str, lobbies: &State<Lobbies>) -> Result<Json<Lobby>, Errors> {
-    let user = Arc::from(user);
-    let channels = lobbies.channels.read().unknown()?;
-
-    if let Some(lobby) = channels.get(&user) {
-        Ok(Json(lobby.clone()))
-    } else {
-        Err(Errors::NotFound("Lobby not found".to_owned()))
-    }
+    .body(key))
 }
 
 /// Connect to the lobby as a streamer
 #[openapi(skip)]
 #[get("/lobby/connect/streamer?<user>&<key>")]
-fn connect_streamer(
+fn connect_streamer<'a>(
     ws: ws::WebSocket,
-    user: &str,
+    user: &'a str,
     key: &str,
-    lobbies: &State<Lobbies>,
-) -> Result<ws::Stream!['static], Errors> {
+    lobbies: &'a State<Lobbies>,
+) -> Result<ws::Channel<'a>, Errors> {
     let channels = lobbies.channels.read().unknown()?;
     let Some(lobby) = channels.get(user) else {
         log::warn!("Streamer tried to connect to unknown lobby.");
@@ -238,16 +239,117 @@ fn connect_streamer(
         return Err(Errors::NotAllowed("Wrong key!".into()));
     }
 
-    let result = {
-        ws::Stream! { ws =>
-            for await message in ws {
-                let message = message?;
-                log::info!("Echoing {message}");
-                yield message;
+    let mut lobby_channels = lobby.channels.write().unknown()?;
+    if lobby_channels.is_some() {
+        log::warn!("Streamer tried to connect but lobby already exsits.");
+        return Err(Errors::AlreadyConnected(
+            "You are already connected to this lobby".to_owned(),
+        ));
+    }
+
+    let (streamer_to_client_send, streamer_to_client_recv) = sync::broadcast::channel(100);
+    let (client_to_streamer_send, client_to_streamer_recv) = sync::mpsc::channel(100);
+
+    *lobby_channels = Some(LobbyChannels {
+        streamer_to_client: streamer_to_client_recv,
+        client_to_streamer: client_to_streamer_send,
+    });
+
+    // Make sure we dont hold the locks too long
+    drop(lobby_channels);
+    drop(channels);
+
+    Ok(ws.channel(move |mut connection| {
+        Box::pin(async move {
+            let mut channel_recv = client_to_streamer_recv;
+            let channel_send = streamer_to_client_send;
+
+            loop {
+                rocket::tokio::select! {
+                    res = connection.next() => {
+                        if let Some(Ok(message)) = res {
+                            if !message.is_close() {
+                                let _ = channel_send.send(message);
+                            }
+                        } else {
+                            info!("STREAM: Websocket closed");
+                            break;
+                        }
+                    },
+                    res = channel_recv.recv() => {
+                        if let Some(message) = res {
+                            let _ = connection.send(message).await;
+                        }
+                    },
+                }
             }
-        }
+
+            if let Ok(mut channels) = lobbies.channels.write() {
+                log::info!("Closing lobby");
+                channels.remove(user);
+            }
+
+            Ok(())
+        })
+    }))
+}
+
+/// Connect to the lobby
+#[openapi(skip)]
+#[get("/lobby/connect?<user>")]
+fn connect_user(
+    ws: ws::WebSocket,
+    user: &str,
+    lobbies: &State<Lobbies>,
+) -> Result<ws::Channel<'static>, Errors> {
+    let channels = lobbies.channels.read().unknown()?;
+    let Some(lobby) = channels.get(user) else {
+        log::warn!("Viewer tried to connect to unknown lobby.");
+        return Err(Errors::NotFound("Lobby does not exsit".into()));
     };
-    Ok(result)
+
+    let lobby_channels_lock = lobby.channels.read().unknown()?;
+    let Some(lobby_channels) = lobby_channels_lock.as_ref() else {
+        log::warn!("Viewer tried to lobby a.");
+        return Err(Errors::NotFound(
+            "The game has not yet connected to this lobby".to_owned(),
+        ));
+    };
+
+    let mut channel_recv = lobby_channels.streamer_to_client.resubscribe();
+    let channel_send = lobby_channels.client_to_streamer.clone();
+
+    // Make sure we dont hold the locks too long
+    drop(lobby_channels_lock);
+    drop(channels);
+
+    Ok(ws.channel(move |connection| {
+        Box::pin(async move {
+            let (mut connection_send, mut connection_recv) = connection.split();
+
+            let client_stream = async move {
+                while let Some(Ok(message)) = connection_recv.next().await {
+                    if !message.is_close() {
+                        let _ = channel_send.send(message).await;
+                    }
+                }
+                info!("CLIENT: Websocket closed!");
+                Ok::<(), ws::result::Error>(())
+            };
+            let stream_client = async move {
+                while let Ok(message) = channel_recv.recv().await {
+                    connection_send.send(message).await?;
+                }
+                info!("CLIENT: Channel closed (stream disconnected)");
+                Ok::<(), ws::result::Error>(())
+            };
+
+            rocket::tokio::select!(
+                res = client_stream => res,
+                res = stream_client => res,
+            )
+        })
+    }))
 }
 
 /// Start the server
@@ -256,7 +358,7 @@ fn rocket() -> _ {
     rocket::build()
         .mount(
             "/",
-            openapi_get_routes![index, new_lobby, get_lobby, connect_streamer],
+            openapi_get_routes![index, new_lobby, connect_streamer, connect_user],
         )
         .register("/", catchers![default_catcher])
         .mount(
@@ -324,25 +426,6 @@ mod tests {
             let response = client.post(uri!(new_lobby("viv"))).dispatch();
 
             assert_eq!(response.status(), Status::Conflict);
-        }
-
-        #[test]
-        fn get_found() {
-            let client = Client::tracked(rocket()).unwrap();
-            client.post(uri!(new_lobby("viv"))).dispatch();
-            let response = client.get(uri!(get_lobby("viv"))).dispatch();
-
-            assert_eq!(response.status(), Status::Ok);
-            let lobby: Lobby = response.into_json().unwrap();
-            assert_eq!(lobby.owner, "viv".into());
-        }
-
-        #[test]
-        fn get_non_exsistant() {
-            let client = Client::tracked(rocket()).unwrap();
-            let response = client.get(uri!(get_lobby("viv"))).dispatch();
-
-            assert_eq!(response.status(), Status::NotFound);
         }
     }
 }

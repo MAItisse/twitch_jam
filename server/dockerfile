@@ -1,4 +1,4 @@
-FROM rustlang/rust:nightly-slim as base
+FROM rust as base
 RUN cargo install cargo-chef --version ^0.1
  
 FROM base AS planner
