@@ -9,6 +9,7 @@ serde = {version = "1.0", features=["derive", "rc"]}
 rocket_okapi = {version="0.8", features=["swagger"]} 
 ws = { package = "rocket_ws", version = "0.1" }
 log = "0.4"
+rocket_cors = { version = "0.6.0", default-features = false }
 
 [dependencies.uuid]
 version = "1.10"

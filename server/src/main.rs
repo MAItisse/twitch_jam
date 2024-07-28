@@ -355,6 +355,8 @@ fn connect_user(
 /// Start the server
 #[launch]
 fn rocket() -> _ {
+    let cors = rocket_cors::CorsOptions::default();
+    #[allow(clippy::expect_used)]
     rocket::build()
         .mount(
             "/",
@@ -369,6 +371,7 @@ fn rocket() -> _ {
             }),
         )
         .manage(Lobbies::default())
+        .attach(cors.to_cors().expect("Failed to create cors"))
 }
 
 #[cfg(test)]
