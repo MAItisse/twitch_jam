@@ -1,42 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    //public Slider progressBar; // Reference to a UI slider to show progress
-
-    public void LoadScene(string sceneToLoad)
+    public GameObject pauseMenu;
+    
+    void Update()
     {
-        StartCoroutine(LoadSceneAsync(sceneToLoad));
-    }
-
-    IEnumerator LoadSceneAsync(string sceneToLoad)
-    {
-        // Start loading the scene asynchronously
-        AsyncOperation operation = SceneManager.LoadSceneAsync(sceneToLoad);
-
-        // While the scene is still loading
-        while (!operation.isDone)
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            // Optionally, update the progress bar
-            /*if (progressBar != null)
-            {
-                progressBar.value = operation.progress;
-            }*/
-
-            yield return null;
+            pauseMenu.SetActive(!pauseMenu.activeInHierarchy);
         }
-    }
-
-    public void Exit()
-    {
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        // If running as a standalone build
-        Application.Quit();
-#endif
     }
 }

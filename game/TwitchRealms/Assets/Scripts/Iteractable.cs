@@ -29,7 +29,7 @@ public class Iteractable : MonoBehaviour
             controllableCharacter.enabled = false;
             var newControllable = gameObject.GetOrAddComponent<Controllable>();
             newControllable.enabled = true;
-            newControllable.speed = 2;
+            newControllable.speed = Random.Range(1.25f, 2.25f);
             Camera.main.GetComponent<FollowCamera>().followMe = newControllable.gameObject.transform;
         }
     }
