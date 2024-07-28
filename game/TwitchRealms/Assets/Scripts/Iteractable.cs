@@ -5,12 +5,13 @@ using UnityEngine;
 
 public class Iteractable : MonoBehaviour
 {
-    private readonly float radius = 1f;
+    private readonly float radius = 1.25f;
     // Start is called before the first frame update
     void Start()
     {
         var collider = gameObject.AddComponent<BoxCollider>();
         var triggerRange = gameObject.AddComponent<SphereCollider>();
+        var rigidBody = gameObject.AddComponent<Rigidbody>();
         triggerRange.radius = radius;
         triggerRange.isTrigger = true;
     }

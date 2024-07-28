@@ -1,0 +1,1905 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TwitchSDK</name>
+    </assembly>
+    <members>
+        <member name="T:TwitchSDK.EventStream`1">
+            <summary>
+            Represents an active EventSub subscription.
+            </summary>
+            <remarks>
+            You can have multiple concurrent subscriptions to the same event type.
+            In that case, each event will be delivered to every single subscription.
+            <para>
+            Use <see cref="M:TwitchSDK.EventStream`1.WaitForEvent"/> to be notified immediately when the next event arrives.
+            Whenever an event arrives even though you are not currently waiting, that event is buffered.
+            Hence, keeping an open subscription but never receiving events from it produces a memory leak.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:TwitchSDK.EventStream`1.WaitForEvent">
+            <summary>
+            Wait for a new event to arrive.
+            </summary>
+            <remarks>
+            Invoking this function concurrently, i.e., calling it before an earlier invocation returns, is allowed.
+            In that case, an incoming event is always delivered to the oldest currently waiting <see cref="M:TwitchSDK.EventStream`1.WaitForEvent"/> call.
+            <para>
+            We recommend that you only use <see cref="M:TwitchSDK.EventStream`1.WaitForEvent"/> OR <see cref="M:TwitchSDK.EventStream`1.TryGetNextEvent(`0@)"/> for the same event stream, and not both.
+            If you work in an Unity Update() function, using <see cref="M:TwitchSDK.EventStream`1.TryGetNextEvent(`0@)"/> may be easier.
+            </para>
+            <para>
+            This function waits until a matching event arrives, potentially forever.
+            To cancel the the call, terminate your subscription using <see cref="M:System.IDisposable.Dispose"/>.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:TwitchSDK.EventStream`1.TryGetNextEvent(`0@)">
+            <summary>
+            Returns a potentially waiting event. If there's no event waiting, this returns false, and no event.
+            </summary>
+            <remarks>
+            We recommend that you only use <see cref="M:TwitchSDK.EventStream`1.WaitForEvent"/> OR <see cref="M:TwitchSDK.EventStream`1.TryGetNextEvent(`0@)"/> for the same event stream, and not both.
+            This function internally calls <see cref="M:TwitchSDK.EventStream`1.WaitForEvent"/>, and if there's no event, caches the <see cref="T:TwitchSDK.GameTask`1"/> for the next invocation of this function.
+            This is useful for calling this e.g. in an Unity Update() function.
+            </remarks>
+        </member>
+        <member name="T:TwitchSDK.GameTask`1">
+            <summary>
+            An awaitable Task suitable for games, where Result never blocks
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:TwitchSDK.GameTask`1.Task">
+            <summary>
+            The underlying Task&lt;T&gt; object. Careful: properties and methods may block!
+            </summary>
+        </member>
+        <member name="P:TwitchSDK.GameTask`1.MaybeResult">
+            <summary>
+            Gets the result of the underlying Task if it's completed. Otherwise, it will return null.
+            </summary>
+        </member>
+        <member name="P:TwitchSDK.GameTask`1.Exception">
+            <summary>
+            Gets the AggregateException that caused the underlying task to exit prematurely.
+            If the task is not completed or has completed sucessfully, this will return null.
+            </summary>
+        </member>
+        <member name="M:TwitchSDK.GameTask`1.GetAwaiter">
+            <summary>
+            Returns an awaiter, so you can await this, if you really want to.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:TwitchSDK.GameTask">
+            <summary>
+            An awaitable Task suitable for games, where Result never blocks
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:TwitchSDK.GameTask.Task">
+            <summary>
+            The underlying Task&lt;T&gt; object. Careful: properties and methods may block!
+            </summary>
+        </member>
+        <member name="P:TwitchSDK.GameTask.IsCompleted">
+            <summary>
+            Gets wether the underlying Task has completed.
+            </summary>
+        </member>
+        <member name="M:TwitchSDK.GameTask.GetAwaiter">
+            <summary>
+            Returns an awaiter, so you can await this, if you really want to.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:TwitchSDK.Interop.AuthStatus">
+            <summary>
+            The current user authentication status.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.AuthStatus.LoggedOut">
+            <summary>
+            The core library is logged out.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.AuthStatus.Loading">
+            <summary>
+            The status can not be determined because an operation affecting it is currently in progress.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.AuthStatus.WaitingForCode">
+            <summary>
+            The authorization code flow is in progress and we are currently waiting for the user to authorize.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.AuthStatus.LoggedIn">
+            <summary>
+            We have valid OAuth credentials.
+            </summary>
+            <remarks>
+            Note that these credentials may still be rejected if the user revokes your Client-Id from their account.
+            </remarks>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardRedemptionState.Unknown">
+            <summary>
+            There was an error determining the state of the redemption.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardRedemptionState.Unfulfilled">
+            <summary>
+            The channel points reward has been redeemed and is now waiting to be fulfilled.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardRedemptionState.Fulfilled">
+            <summary>
+            The channel points reward has been fulfilled.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardRedemptionState.Canceled">
+            <summary>
+            The channel points reward has been canceled, and the channel points have been refunded.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.EventStreamKind">
+            <summary>
+            The type of an EventSub subscription.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.EventStreamKind.Subscription">
+            <summary>
+            A notification when a specified channel receives a subscriber. This does not include resubscribes.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.EventStreamKind.Follower">
+            <summary>
+            A specified channel receives a follow.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.EventStreamKind.Cheer">
+            <summary>
+            A user cheers on the specified channel.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.EventStreamKind.CustomRewardRedemption">
+            <summary>
+            A viewer has redeemed a custom channel points reward on the specified channel or the redemption
+            has been updated (i.e., fulfilled or cancelled).
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.EventStreamKind.HypeTrain">
+            <summary>
+            A Hype Train makes progress on the user's channel.
+            Requires the <c>channel:read:hype_train</c> scope.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.EventStreamKind.ChannelRaid">
+            <summary>
+            A broadcaster raids another broadcaster’s channel.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.PredictionStatus">
+            <summary>
+            Status of a Prediction.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionStatus.Active">
+            <summary>
+            The Prediction is active and viewers can make predictions.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionStatus.Locked">
+            <summary>
+            The Prediction has been locked and viewers can no longer make predictions.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionStatus.Resolved">
+            <summary>
+            A winning outcome has been chosen and the Channel Points have been distributed to the users who guessed the correct outcome.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionStatus.Canceled">
+            <summary>
+            The Prediction has been canceled and the Channel Points have been refunded to participants.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.PollStatus">
+            <summary>
+            Status of a poll.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollStatus.Active">
+            <summary>
+            Poll is currently in progress.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollStatus.Completed">
+            <summary>
+            Poll has reached its <see cref="F:TwitchSDK.Interop.PollInfo.EndedAt" /> time.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollStatus.Terminated">
+            <summary>
+            Poll has been manually terminated before its <see cref="F:TwitchSDK.Interop.PollInfo.EndedAt" /> time.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollStatus.Archived">
+            <summary>
+            Poll is no longer visible on the channel.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollStatus.Moderated">
+            <summary>
+            Poll is no longer visible to any user on Twitch.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollStatus.Invalid">
+            <summary>
+            Something went wrong determining the state.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.AuthState">
+            <summary>
+            The library's user authentication state.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.AuthState.Status">
+            <summary>
+            The current authentication status.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.AuthState.Scopes">
+            <summary>
+            If Status is AuthStatus.LoggedIn, this is the set of available OAuth scopes.
+            </summary>
+            <remarks>
+            This may be smaller than the set of scopes you passed to GetAuthenticationInfo if the user logged in with a previous version of your application.
+            </remarks>
+        </member>
+        <member name="T:TwitchSDK.Interop.ChannelRaidEvent">
+            <summary>
+            A broadcaster raids another broadcaster’s channel.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelRaidEvent.FromBroadcasterId">
+            <summary>
+            The broadcaster ID that created the raid.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelRaidEvent.FromBroadcasterName">
+            <summary>
+            The broadcaster display name that created the raid.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelRaidEvent.ToBroadcasterId">
+            <summary>
+            The broadcaster ID that received the raid.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelRaidEvent.ToBroadcasterName">
+            <summary>
+            The broadcaster display name that received the raid.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelRaidEvent.Viewers">
+            <summary>
+            The number of viewers in the raid.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardResolveRequest.RedemptionId">
+            <summary>
+            ID of the Custom Reward Redemption to update.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardResolveRequest.CustomRewardId">
+            <summary>
+            ID of the Custom Reward the redemptions to be updated are for.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardResolveRequest.Resolution">
+            <summary>
+            The new status to set redemptions to.
+            </summary>
+            <remarks>
+            Can be either <see cref="F:TwitchSDK.Interop.CustomRewardRedemptionState.Fulfilled" /> or <see cref="F:TwitchSDK.Interop.CustomRewardRedemptionState.Canceled" />.
+            Specifying <see cref="F:TwitchSDK.Interop.CustomRewardRedemptionState.Canceled" /> will refund the user their Channel Points.
+            </remarks>
+        </member>
+        <member name="T:TwitchSDK.Interop.HypeTrainContribution">
+            <summary>
+            Describes a contribution to a Hype Train.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainContribution.UserId">
+            <summary>
+            The ID of the user who contributed to the Hype Train.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainContribution.UserName">
+            <summary>
+            The display name of the user who contributed to the Hype Train.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainContribution.Type">
+            <summary>
+            Type of contribution.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainContribution.Total">
+            <summary>
+            The total contributed.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.HypeTrainEvent">
+            <summary>
+            A Hype Train makes progress on the user's channel.
+            Requires the <c>channel:read:hype_train</c> scope.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainEvent.HypeTrainId">
+            <summary>
+            The Hype Train ID.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainEvent.BroadcasterId">
+            <summary>
+            The requested broadcaster ID.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainEvent.BroadcasterName">
+            <summary>
+            The requested broadcaster display name.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainEvent.Level">
+            <summary>
+            The current level of the Hype Train.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainEvent.TotalPoints">
+            <summary>
+            Total points contributed to the Hype Train.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainEvent.Progress">
+            <summary>
+            The number of points contributed to the Hype Train at the current level.
+            </summary>
+            <remarks>
+            Set to <c>-1</c> when the hype train is over.
+            </remarks>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainEvent.Goal">
+            <summary>
+            The number of points required to reach the next level.
+            </summary>
+            <remarks>
+            Set to <c>-1</c> when the hype train is over.
+            </remarks>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainEvent.StartedAt">
+            <summary>
+            The time when the Hype Train started.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainEvent.ExpiresAt">
+            <summary>
+            The time when the Hype Train expires. The expiration is extended when the Hype Train reaches a new level.
+            </summary>
+            <remarks>
+            This is empty when the Hype Train is over.
+            </remarks>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainEvent.EndedAt">
+            <summary>
+            The time when the Hype Train ended.
+            </summary>
+            <remarks>
+            Empty if the Hype Train has not ended yet.
+            </remarks>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainEvent.CooldownEndsAt">
+            <summary>
+            The time when the Hype Train cooldown ends so that the next Hype Train can start.
+            </summary>
+            <remarks>
+            Empty if the Hype Train has not ended yet.
+            </remarks>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainEvent.TopContributions">
+            <summary>
+            The contributors with the most points contributed.
+            </summary>
+            <remarks>
+            Contains a maximum of two objects: one for the top bits contributor and one for the top subscriptions contributor (this includes gifted subscriptions).
+            </remarks>
+        </member>
+        <member name="F:TwitchSDK.Interop.HypeTrainEvent.LastContribution">
+            <summary>
+            The most recent contribution.
+            </summary>
+            <remarks>
+            This is empty when the Hype Train is over.
+            </remarks>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardDefinition.Title">
+            <summary>
+            The title of the reward.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardDefinition.Cost">
+            <summary>
+            The cost of the reward.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardDefinition.Prompt">
+            <summary>
+            Optional. The prompt for the viewer when redeeming the reward.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardDefinition.IsEnabled">
+            <summary>
+            Optional. Is the reward currently enabled, if <c>false</c> the reward won't show up to viewers.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardDefinition.BackgroundColor">
+            <summary>
+            Optional. Custom background color for the reward.
+            </summary>
+            <remarks>
+            Format: Hex with # prefix. Example: <c>#00E5CB</c>.
+            </remarks>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardDefinition.IsUserInputRequired">
+            <summary>
+            Optional. Does the user need to enter information when redeeming the reward.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardDefinition.IsMaxPerStreamEnabled">
+            <summary>
+            Optional. Whether a maximum per stream is enabled.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardDefinition.MaxPerStream">
+            <summary>
+            Optional. The maximum number per stream if enabled.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardDefinition.IsMaxPerUserPerStreamEnabled">
+            <summary>
+            Optional. Whether a maximum per user per stream is enabled.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardDefinition.MaxPerUserPerStream">
+            <summary>
+            Optional. The maximum number per user per stream if enabled.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardDefinition.IsGlobalCooldownEnabled">
+            <summary>
+            Optional. Whether a cooldown is enabled.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardDefinition.GlobalCooldownSeconds">
+            <summary>
+            Optional. The cooldown in seconds if enabled.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardDefinition.ShouldRedemptionsSkipRequestQueue">
+            <summary>
+            Optional. Should redemptions be set to <see cref="F:TwitchSDK.Interop.CustomRewardRedemptionState.Fulfilled" /> status immediately
+            when redeemed and skip the request queue instead of the normal <see cref="F:TwitchSDK.Interop.CustomRewardRedemptionState.Unfulfilled" /> status.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.BitsLeaderboardEntry.UserId">
+            <summary>
+            ID of the user (viewer) in the leaderboard entry.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.BitsLeaderboardEntry.UserName">
+            <summary>
+            Display name corresponding to <see cref="F:TwitchSDK.Interop.BitsLeaderboardEntry.UserId" />.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.BitsLeaderboardEntry.Rank">
+            <summary>
+            Leaderboard rank of the user.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.BitsLeaderboardEntry.Score">
+            <summary>
+            Leaderboard score (number of Bits) of the user.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.BitsLeaderboard.Data">
+            <summary>
+            Entries on the bits leaderboard, in no particular order.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.BitsLeaderboard.StartedAt">
+            <summary>
+            Start of the date range for the returned data.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.BitsLeaderboard.EndedAt">
+            <summary>
+            End of the date range for the returned data.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.BitsLeaderboardRequest.Count">
+            <summary>
+            Number of results to be returned. Maximum: 100. Default: 10.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.BitsLeaderboardRequest.Period">
+             <summary>
+             Time period over which data is aggregated (PST time zone). This parameter interacts with <see cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.StartedAt" />. Default: <c>all</c>.
+             </summary>
+             <remarks>
+             Valid values:
+            
+             <list type="bullet"><item><description><c>day</c> – 00:00:00 on the day specified in <see cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.StartedAt" />, through 00:00:00 on the following day.</description></item><item><description><c>week</c> – 00:00:00 on Monday of the week specified in <see cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.StartedAt" />, through 00:00:00 on the following Monday.</description></item><item><description><c>month</c> – 00:00:00 on the first day of the month specified in <see cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.StartedAt" />, through 00:00:00 on the first day of the following month.</description></item><item><description><c>year</c> – 00:00:00 on the first day of the year specified in <see cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.StartedAt" />, through 00:00:00 on the first day of the following year.</description></item><item><description><c>all</c> – The lifetime of the broadcaster's channel. If this is specified (or used by default), <see cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.StartedAt" /> is ignored.</description></item></list></remarks>
+        </member>
+        <member name="F:TwitchSDK.Interop.BitsLeaderboardRequest.StartedAt">
+            <summary>
+            Timestamp for the period over which the returned data is aggregated. Must be in RFC 3339 format.
+            </summary>
+            <remarks>
+            If this is not provided, data is aggregated over the current period; e.g., the current day/week/month/year.
+            This value is ignored if <see cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.Period" /> is <c>all</c>.
+            Currently, the HH:MM:SS part of this value is used only to identify a given day in PST and otherwise ignored.
+            For example, if the <see cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.StartedAt" /> value resolves to 5PM PST yesterday and <see cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.Period" /> is <c>day</c>, data is returned for all of yesterday.
+            </remarks>
+        </member>
+        <member name="F:TwitchSDK.Interop.BitsLeaderboardRequest.UserId">
+            <summary>
+            ID of the user whose results are returned; i.e., the person who paid for the Bits.
+            </summary>
+            <remarks>
+            As long as <see cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.Count" /> is greater than 1, the returned data includes additional users, with Bits amounts above and below the user specified by <see cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.UserId" />.
+            If <see cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.UserId" /> is not provided, the endpoint returns the Bits leaderboard data across top users (subject to the value of <see cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.Count" />).
+            </remarks>
+        </member>
+        <member name="T:TwitchSDK.Interop.ChannelFollowEvent">
+            <summary>
+            A specified channel receives a follow.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelFollowEvent.UserId">
+            <summary>
+            The user ID for the user now following the specified channel.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelFollowEvent.UserDisplayName">
+            <summary>
+            The user display name for the user now following the specified channel.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelFollowEvent.FollowedAt">
+            <summary>
+            RFC3339 timestamp of when the follow occurred.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.ChannelCheerEvent">
+            <summary>
+            A user cheers on the specified channel.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelCheerEvent.IsAnonymous">
+            <summary>
+            Whether the user cheered anonymously or not.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelCheerEvent.UserId">
+            <summary>
+            The user ID for the user who cheered on the specified channel. This is null if <see cref="F:TwitchSDK.Interop.ChannelCheerEvent.IsAnonymous" /> is true.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelCheerEvent.UserDisplayName">
+            <summary>
+            The user display name for the user who cheered on the specified channel. This is null if <see cref="F:TwitchSDK.Interop.ChannelCheerEvent.IsAnonymous" /> is true.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelCheerEvent.Message">
+            <summary>
+            The message sent with the cheer.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelCheerEvent.Bits">
+            <summary>
+            The number of bits cheered.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.CustomRewardEvent">
+            <summary>
+            A viewer has redeemed a custom channel points reward on the specified channel or the redemption
+            has been updated (i.e., fulfilled or cancelled).
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardEvent.RedemptionId">
+            <summary>
+            The redemption identifier.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardEvent.BroadcasterId">
+            <summary>
+            The requested broadcaster ID.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardEvent.RedeemerId">
+            <summary>
+            User ID of the user that redeemed the reward.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardEvent.BroadcasterName">
+            <summary>
+            The requested broadcaster display name.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardEvent.RedeemerName">
+            <summary>
+            Display name of the user that redeemed the reward.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardEvent.UserInput">
+            <summary>
+            The user input provided. Empty string if not provided.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardEvent.Status">
+            <summary>
+            Status of the redemption.
+            If you resolve or cancel all redemptions from your code, you should discard all events of this type
+            with a status other than <see cref="F:TwitchSDK.Interop.CustomRewardRedemptionState.Unfulfilled" />.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardEvent.CustomRewardId">
+            <summary>
+            The reward identifier.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardEvent.CustomRewardTitle">
+            <summary>
+            The reward name.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardEvent.CustomRewardCost">
+            <summary>
+            The reward cost.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardEvent.CustomRewardPrompt">
+            <summary>
+            The reward description.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.CustomRewardEvent.RedeemedAt">
+            <summary>
+            RFC3339 timestamp of when the reward was redeemed.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.EventStreamDesc.Token">
+            <summary>
+            Opaque token identifying the subscription. Do not touch.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ModifyChannelInfoRequest.GameId">
+            <summary>
+            The current game ID being played on the channel. Use “0” to unset the game.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ModifyChannelInfoRequest.Language">
+            <summary>
+            The language of the channel. A language value must be either the ISO 639-1 two-letter code for a supported stream language or “other”.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ModifyChannelInfoRequest.Title">
+            <summary>
+            The title of the stream.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ModifyChannelInfoRequest.Delay">
+            <summary>
+            Stream delay in seconds. Stream delay is a Twitch Partner feature; trying to set this value for other account types will return a 400 error.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ModifyChannelInfoRequest.Tags">
+            <summary>
+            A list of channel-defined tags to apply to the channel. Tags help identify the content that the channel streams.
+            </summary>
+            <remarks>
+            A channel may specify a maximum of 10 tags.
+            Each tag is limited to a maximum of 25 characters and may not be an empty string or contain spaces or special characters.
+            Tags are case insensitive. For readability, consider using camelCasing or PascalCasing.
+            </remarks>
+        </member>
+        <member name="F:TwitchSDK.Interop.ModifyChannelInfoRequest.ForceUpdateTags">
+            <summary>
+            If <see cref="F:TwitchSDK.Interop.ModifyChannelInfoRequest.Tags" /> is missing or empty, channel tags will not be altered by default (if <see cref="F:TwitchSDK.Interop.ModifyChannelInfoRequest.ForceUpdateTags" /> is false).
+            If <see cref="F:TwitchSDK.Interop.ModifyChannelInfoRequest.ForceUpdateTags" /> is <c>true</c>, passing an empty (or missing) array <see cref="F:TwitchSDK.Interop.ModifyChannelInfoRequest.Tags" /> causes all tags to be removed from the channel.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.PredictionDefinition">
+            <summary>
+            Contains the information necessary to create a new prediction.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionDefinition.Title">
+            <summary>
+            Title for the Prediction.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionDefinition.Outcomes">
+            <summary>
+            Array of outcome titles for the Prediction.
+            Array size must be 2.
+            The first outcome object is the “blue” outcome and the second outcome object is the “pink” outcome when viewing the Prediction on Twitch.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionDefinition.Duration">
+            <summary>
+            Total duration for the Prediction (in seconds).
+            Minimum: 1. Maximum: 1800.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionOutcome.Id">
+            <summary>
+            ID for the outcome.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionOutcome.Title">
+            <summary>
+            Text displayed for outcome.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionOutcome.Users">
+            <summary>
+            Number of unique users that chose the outcome.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionOutcome.ChannelPoints">
+            <summary>
+            Number of Channel Points used for the outcome.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionOutcome.Color">
+            <summary>
+            Color for the outcome. Valid values: BLUE, PINK
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.PredictionInfo">
+            <summary>
+            Describes a Channel Points Predictions on a Twitch channel.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionInfo.Id">
+            <summary>
+            ID of the Prediction.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionInfo.BroadcasterId">
+            <summary>
+            ID of the broadcaster.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionInfo.Title">
+            <summary>
+            Title for the Prediction.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionInfo.WinningOutcomeId">
+            <summary>
+            ID of the winning outcome. If <see cref="F:TwitchSDK.Interop.PredictionInfo.Status" /> is <see cref="F:TwitchSDK.Interop.PredictionStatus.Active" />, this is set to <c>null</c>.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionInfo.Outcomes">
+            <summary>
+            Array of possible outcomes for the Prediction.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionInfo.Status">
+            <summary>
+            Status of the Prediction.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionInfo.CreatedAt">
+            <summary>
+            UTC timestamp for the Prediction’s start time.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionInfo.EndedAt">
+            <summary>
+            UTC timestamp for when the Prediction ended. If <see cref="F:TwitchSDK.Interop.PredictionInfo.Status" /> is <see cref="F:TwitchSDK.Interop.PredictionStatus.Active" />, this is set to <c>null</c>.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PredictionInfo.LockedAt">
+            <summary>
+            UTC timestamp for when the Prediction was locked. If <see cref="F:TwitchSDK.Interop.PredictionInfo.Status" /> is <see cref="F:TwitchSDK.Interop.PredictionStatus.Active" />, this is set to <c>null</c>.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.EndPredictionRequest.BroadcasterId">
+            <summary>
+            The broadcaster running prediction events.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.EndPredictionRequest.PredictionId">
+            <summary>
+            ID of the Prediction.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.EndPredictionRequest.Status">
+            <summary>
+            The Prediction status to be set.
+            </summary>
+            <remarks>
+            Valid values:
+            <see cref="F:TwitchSDK.Interop.PredictionStatus.Locked" />,
+            <see cref="F:TwitchSDK.Interop.PredictionStatus.Resolved" />,
+            <see cref="F:TwitchSDK.Interop.PredictionStatus.Canceled" /></remarks>
+        </member>
+        <member name="F:TwitchSDK.Interop.EndPredictionRequest.WinningOutcomeId">
+            <summary>
+            ID of the winning outcome for the Prediction, if <see cref="F:TwitchSDK.Interop.EndPredictionRequest.Status" /> is being set to <see cref="F:TwitchSDK.Interop.PredictionStatus.Resolved" />.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.StreamMarkerInfo">
+            <summary>
+            Describes a Stream Marker.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamMarkerInfo.Id">
+            <summary>
+            Unique ID of the marker.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamMarkerInfo.CreatedAt">
+            <summary>
+            RFC3339 timestamp of the marker.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamMarkerInfo.Description">
+            <summary>
+            Description of the marker.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamMarkerInfo.PositionSeconds">
+            <summary>
+            Relative offset (in seconds) of the marker, from the beginning of the stream.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.ClipInfo">
+            <summary>
+            Describes a Clip.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ClipInfo.Id">
+            <summary>
+            ID of the clip being queried.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ClipInfo.Url">
+            <summary>
+            URL where the clip can be viewed.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ClipInfo.EmbedUrl">
+            <summary>
+            URL to embed the clip.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ClipInfo.CreatedAt">
+            <summary>
+            Date when the clip was created.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ClipInfo.ThumbnailUrl">
+            <summary>
+            URL of the clip thumbnail.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ClipInfo.Duration">
+            <summary>
+            Duration of the Clip in seconds.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.EndPollRequest.BroadcasterId">
+            <summary>
+            ID of the broadcaster.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.EndPollRequest.PollId">
+            <summary>
+            ID of the poll.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.EndPollRequest.ShowResults">
+            <summary>
+            If <c>true</c>, sets the poll status to <see cref="F:TwitchSDK.Interop.PollStatus.Terminated" /> so that results are shown.
+            If <c>false</c>, sets the poll status to <see cref="F:TwitchSDK.Interop.PollStatus.Archived" /> so that the poll is canceled immediately and no results are shown.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollChoiceInfo.Id">
+            <summary>
+            ID for the choice.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollChoiceInfo.Title">
+            <summary>
+            Text displayed for the choice.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollChoiceInfo.Votes">
+            <summary>
+            Total number of votes received for the choice across all methods of voting.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollChoiceInfo.ChannelPointsVotes">
+            <summary>
+            Number of votes received via Channel Points.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.PollInfo">
+            <summary>
+            Describes a Poll on a Twitch channel.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollInfo.Id">
+            <summary>
+            ID of the poll.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollInfo.BroadcasterId">
+            <summary>
+            ID of the broadcaster.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollInfo.Title">
+            <summary>
+            Question displayed for the poll.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollInfo.Choices">
+            <summary>
+            Array of the poll choices.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollInfo.ChannelPointsVotingEnabled">
+            <summary>
+            Indicates if Channel Points can be used for voting.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollInfo.ChannelPointsPerVote">
+            <summary>
+            Number of Channel Points required to vote once with Channel Points.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollInfo.Status">
+            <summary>
+            Poll status.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollInfo.StartedAt">
+            <summary>
+            UTC timestamp for the poll’s start time.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollInfo.EndedAt">
+            <summary>
+            UTC timestamp for the poll’s end time. Set to <c>null</c> if the poll is still <see cref="F:TwitchSDK.Interop.PollStatus.Active" />.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.StreamQuery">
+            <summary>
+            Describes a query for streams. All fields are optional.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamQuery.After">
+            <summary>
+            Cursor for forward pagination: tells the server where to start fetching the next set of results,
+            in a multi-page response. The cursor value specified here is from the <c>PaginationCursor</c> response
+            field of a prior query.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamQuery.First">
+            <summary>
+            Maximum number of objects to return. Maximum: 100. Default: 20.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamQuery.GameIds">
+            <summary>
+            Returns streams broadcasting a specified game ID. You can specify up to 100 IDs.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamQuery.Languages">
+            <summary>
+            Stream language. You can specify up to 100 languages. A language value must be either the ISO 639-1 two-letter code for a supported stream language or “other”.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamQuery.UserIds">
+            <summary>
+            Returns streams broadcast by one or more specified user IDs. You can specify up to 100 IDs.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamQuery.UserLogins">
+            <summary>
+            Returns streams broadcast by one or more specified user login names. You can specify up to 100 names.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.UserInfo.ChannelId">
+            <summary>
+            User’s ID.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.UserInfo.LoginName">
+            <summary>
+            User’s login name.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.UserInfo.DisplayName">
+            <summary>
+            User’s display name.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.UserInfo.UserType">
+            <summary>
+            User’s type: "staff", "admin", "global_mod", or "".
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.UserInfo.BroadcasterType">
+            <summary>
+            User’s broadcaster type: "partner", "affiliate", or "".
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.UserInfo.Description">
+            <summary>
+            User’s channel description.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.UserInfo.ProfileImageUrl">
+            <summary>
+            URL of the user’s profile image.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.UserInfo.OfflineImageUrl">
+            <summary>
+            URL of the user’s offline image.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.UserInfo.ViewCount">
+            <summary>
+            Total number of views of the user’s channel.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.UserInfo.CreatedAt">
+            <summary>
+            Date when the user was created.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.UserInfo.Email">
+            <summary>
+            User’s verified email address. Only available if you have the <c>user:read:email</c> scope.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.StreamInfo">
+            <summary>
+            Describes an active stream on Twitch.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamInfo.Id">
+            <summary>
+            Stream ID.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamInfo.UserId">
+            <summary>
+            ID of the user who is streaming.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamInfo.UserLogin">
+            <summary>
+            Login of the user who is streaming.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamInfo.UserName">
+            <summary>
+            Display name of the user who is streaming.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamInfo.GameId">
+            <summary>
+            ID of the game being played on the stream.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamInfo.GameName">
+            <summary>
+            Name of the game being played.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamInfo.Type">
+            <summary>
+            Stream type: "live" or "" (in case of error).
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamInfo.Title">
+            <summary>
+            Stream title.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamInfo.ViewerCount">
+            <summary>
+            Number of viewers watching the stream at the time of the query.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamInfo.StartedAt">
+            <summary>
+            UTC timestamp.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamInfo.Language">
+            <summary>
+            Stream language. A language value is either the ISO 639-1 two-letter code for a supported stream language or “other”.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamInfo.ThumbnailUrl">
+            <summary>
+            Thumbnail URL of the stream. All image URLs have variable width and height. You can replace <c>{width}</c> and <c>{height}</c> with any values to get that size image
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamInfo.Tags">
+            <summary>
+            Shows tag IDs that apply to the stream.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamInfo.IsMature">
+            <summary>
+            Indicates if the broadcaster has specified their channel contains mature content that may be inappropriate for younger audiences.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamQueryResult.Streams">
+            <summary>
+            List of streams matching the query.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.StreamQueryResult.PaginationCursor">
+            <summary>
+            Pagination cursor to fetch the next page of results. May be empty if there are no further results.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.ChannelSubscribeEvent">
+            <summary>
+            A notification when a specified channel receives a subscriber. This does not include resubscribes.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelSubscribeEvent.UserId">
+            <summary>
+            The user ID for the user who subscribed to the specified channel.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelSubscribeEvent.UserLogin">
+            <summary>
+            The user login for the user who subscribed to the specified channel.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelSubscribeEvent.UserDisplayName">
+            <summary>
+            The user display name for the user who subscribed to the specified channel.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelSubscribeEvent.Tier">
+            <summary>
+            The tier of the subscription. Valid values are <c>1000</c>, <c>2000</c>, and <c>3000</c>.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelSubscribeEvent.IsGift">
+            <summary>
+            Whether the subscription is a gift.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelSubscribeEvent.CumulativeMonths">
+            <summary>
+            The total number of months the user has been subscribed to the channel.
+            This is nonzero only for resubscriptions.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelSubscribeEvent.StreakMonths">
+            <summary>
+            The number of consecutive months the user’s current subscription has been active.
+            This value is <c>-1</c> if the user has opted out of sharing this information.
+            This is nonzero only for resubscriptions.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.ChannelSubscribeEvent.DurationMonths">
+            <summary>
+            The month duration of the subscription.
+            This is nonzero only for resubscriptions.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.UserSubscriptionCheckResult">
+            <summary>
+            Describes a user's subscription to a specified channel.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.UserSubscriptionCheckResult.Tier">
+            <summary>
+            Subscription tier. 1000 is tier 1, 2000 is tier 2, and 3000 is tier 3.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.UserSubscriptionCheckResult.GifterLogin">
+            <summary>
+            Login of the gifter (if <see cref="F:TwitchSDK.Interop.UserSubscriptionCheckResult.IsGift" /> is <c>true</c>).
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.UserSubscriptionCheckResult.GifterName">
+            <summary>
+            Display name of the gifter (if <see cref="F:TwitchSDK.Interop.UserSubscriptionCheckResult.IsGift" /> is <c>true</c>).
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.UserSubscriptionCheckResult.IsGift">
+            <summary>
+            Indicates if the subscription is a gift.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.UserSubscriptionCheckResult.IsSubscribed">
+            <summary>
+            Indicates if the user is subscribed at all.
+            If this is <c>false</c>, all other fields are empty.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.PollDefinition">
+            <summary>
+            Contains the information necessary to create a new poll.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollDefinition.Title">
+            <summary>
+            Question displayed for the poll.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollDefinition.Choices">
+            <summary>
+            Array of the poll choices.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollDefinition.Duration">
+            <summary>
+            Total duration for the poll (in seconds).
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollDefinition.BitsVotingEnabled">
+            <summary>
+            Indicates if Bits can be used for voting.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollDefinition.BitsPerVote">
+            <summary>
+            Number of Bits required to vote once with Bits.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollDefinition.ChannelPointsVotingEnabled">
+            <summary>
+            Indicates if Channel Points can be used for voting.
+            </summary>
+        </member>
+        <member name="F:TwitchSDK.Interop.PollDefinition.ChannelPointsPerVote">
+            <summary>
+            Number of Channel Points required to vote once with Channel Points.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.PlatformAbstractionLayer">
+            <summary>
+            The Platform Abstraction Layer (PAL) implements platform-specific API calls, e.g. file I/O.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.CoreLibrary">
+            <summary>
+            This class holds a reference to the C++ Core Library.
+            </summary>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.GetAuthState">
+            <summary>
+            Query the current authentication state.
+            </summary>
+            <remarks>
+            This call always returns immediately.
+            </remarks>
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.GetAuthenticationInfo(System.String)" />
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.GetAuthenticationInfo(System.String)">
+            <summary>
+            Start the authorization code flow. If a user is currently logged in, this does nothing.
+            After a successfull call to GetAuthenticationInfo, subsequent calls will return the same AuthenticationInfo
+            until the login is either completed or timed out.
+            </summary>
+            <remarks>
+            Credentials are stored persistently, so after loggin in successfully and restarting your application,
+            the library remains in the LoggedIn state.
+            </remarks>
+            <param name="scopes">The set of OAuth scopes you would like to request.</param>
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.GetAuthState" />
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.LogOut" />
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.LogOut">
+            <summary>
+            Log out.
+            </summary>
+            <remarks>
+            This call always returns immediately.
+            </remarks>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.GetMyUserInfo">
+            <summary>
+            Gets information about the currently logged-in user's account.
+            </summary>
+            <remarks>
+            If the user is not logged in, this also waits for a successful login.
+            </remarks>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.GetUserInfoById(System.String)">
+            <summary>
+            Gets information about a specific Twitch user account.
+            </summary>
+            <remarks>
+            Returns an empty object if no such user could be found.
+            </remarks>
+            <param name="id">The account ID to query for.</param>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.GetUserInfoByLoginName(System.String)">
+            <summary>
+            Gets information about a specific Twitch user account.
+            </summary>
+            <remarks>
+            Returns an empty object if no such user could be found.
+            </remarks>
+            <param name="login">The login name to query for.</param>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.GetMyStreamInfo">
+            <summary>
+            Gets information about the currently logged-in user's stream.
+            </summary>
+            <remarks>
+            If the user is not logged in, this also waits for a successful login.
+            Returns <c>null</c> if the user is currently not live.
+            </remarks>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.QueryStreams(TwitchSDK.Interop.StreamQuery)">
+            <summary>
+            Gets information about active streams. Streams are returned sorted by number of current viewers, in descending order.
+            </summary>
+            <remarks>
+            Submitting an empty <paramref name="query" /> is valid and fetches the top streams currently on Twitch.
+            Across multiple pages of results, there may be duplicate or missing streams, as viewers join and leave streams.
+            </remarks>
+            <param name="query">The query to submit to the API.</param>
+            <returns>An object containing the matching streams and optionally a pagination token to fetch more results.</returns>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.CheckUserSubscription(System.String)">
+            <summary>
+            Checks if the currently logged-in user is subscribed to a specific channel.
+            </summary>
+            <remarks>
+            Required scope: <c>user:read:subscriptions</c></remarks>
+            <param name="broadcaster">ID of the broadcaster to check for.</param>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.CreateClip(System.Boolean)">
+            <summary>
+            Creates a clip programmatically. This returns both an ID and an edit URL for the new clip.
+            </summary>
+            <remarks>
+            Required scope: <c>clips:edit</c><para>Creating a clip can take up to 15 seconds.</para><para>
+            If <paramref name="hasDelay" /> is <c>false</c>, the clip is captured from the live stream when the API is called; otherwise, a delay is added before the clip is captured
+            (to account for the brief delay between the broadcaster’s stream and the viewer’s experience of that stream).
+            </para></remarks>
+            <param name="hasDelay">Whether stream delay should be added before capturing the clip.</param>
+            <returns>An object describing the new clip.</returns>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.CreateStreamMarker(System.String)">
+            <summary>
+            Creates a marker in the stream of a user.
+            </summary>
+            <remarks>
+            Required scope: <c>channel:manage:broadcast</c><para>
+            A marker is an arbitrary point in a stream that the broadcaster wants to mark;
+            e.g., to easily return to later. The marker is created at the current timestamp in the
+            live broadcast when the request is processed.
+            Markers can be created by the stream owner or editors.
+            </para><para>
+            Markers cannot be created in some cases (an error will occur):
+            <list type="bullet"><item><description>If the specified user’s stream is not live.</description></item><item><description>If VOD (past broadcast) storage is not enabled for the stream.</description></item><item><description>For premieres (live, first-viewing events that combine uploaded videos with live chat).</description></item><item><description>For reruns (subsequent (not live) streaming of any past broadcast, including past premieres).</description></item></list></para></remarks>
+            <param name="description">Optional. Description of or comments on the marker. Max length is 140 characters.</param>
+            <returns>An object describing the new stream marker.</returns>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.CreatePoll(TwitchSDK.Interop.PollDefinition)">
+            <summary>
+            Create a poll on the user's Twitch channel.
+            </summary>
+            <remarks>
+            Required scope: <c>channel:manage:polls</c><para>
+            Creating a poll automatically subscribes to updates for this poll.
+            Avoid unnecessary traffic by invoking <see cref="M:TwitchSDK.Interop.CoreLibrary.UnsubscribeFromPoll(System.String)" /> at some point for every poll you create.
+            </para></remarks>
+            <returns>An object describing the new poll.</returns>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.WaitForPollUpdate(System.String)">
+            <summary>
+            Wait for updates to a specified poll.
+            Updates occur when users submit votes, and finally, when the poll ends.
+            </summary>
+            <remarks>
+            Avoid calling this function on polls after they have ended, as they will no longer recieve updates at that point.
+            </remarks>
+            <param name="poll">Id of the poll to wait for.</param>
+            <returns>The updated poll info.</returns>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.EndPoll(TwitchSDK.Interop.EndPollRequest)">
+            <summary>
+            End a poll prematurely.
+            </summary>
+            <returns>The updated poll info.</returns>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.UnsubscribeFromPoll(System.String)">
+            <summary>
+            Unsubscribe from updates for a specific poll.
+            </summary>
+            <remarks>
+            You must not invoke this function multiple times for the same poll.
+            Unsubscribing from polls is optional. Failing to do so results in unnecessary traffic,
+            but will not cause any malfunction or memory leak.
+            </remarks>
+            <param name="id">Id of the poll to unsubscribe from.</param>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.CreatePrediction(TwitchSDK.Interop.PredictionDefinition)">
+            <summary>
+            Create a Channel Points Prediction on the user's Twitch channel.
+            </summary>
+            <remarks>
+            Required scope: <c>channel:manage:predictions</c><para>
+            Creating a prediction automatically subscribes to updates for this prediction.
+            Avoid unnecessary traffic by invoking <see cref="M:TwitchSDK.Interop.CoreLibrary.UnsubscribeFromPrediction(System.String)" /> at some point for every poll you create.
+            </para></remarks>
+            <returns>An object describing the new prediction.</returns>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.WaitForPredictionUpdate(System.String)">
+            <summary>
+            Wait for updates to a specified prediction.
+            Updates occur when users submit votes, and finally, when the prediction ends.
+            </summary>
+            <remarks>
+            Avoid calling this function on predictions after they have ended, as they will no longer recieve updates at that point.
+            </remarks>
+            <param name="prediction">Id of the prediction to wait for.</param>
+            <returns>The updated prediction info.</returns>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.EndPrediction(TwitchSDK.Interop.EndPredictionRequest)">
+            <summary>
+            Lock, resolve, or cancel a Channel Points Prediction.
+            </summary>
+            <remarks>
+            Required scope: <c>channel:manage:predictions</c></remarks>
+            <returns>The updated prediction info.</returns>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.UnsubscribeFromPrediction(System.String)">
+            <summary>
+            Unsubscribe from updates for a specific prediction.
+            </summary>
+            <remarks>
+            You must not invoke this function multiple times for the same prediction.
+            Unsubscribing from predictions is optional. Failing to do so results in unnecessary traffic,
+            but will not cause any malfunction or memory leak.
+            </remarks>
+            <param name="id">Id of the prediction to unsubscribe from.</param>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.ModifyChannelInformation(TwitchSDK.Interop.ModifyChannelInfoRequest)">
+            <summary>
+            Modifies channel information for the currently logged-in user.
+            </summary>
+            <remarks>
+            Required scope: <c>channel:manage:broadcast</c></remarks>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.GetBitsLeaderboard(TwitchSDK.Interop.BitsLeaderboardRequest)">
+            <summary>
+            Gets a ranked list of Bits leaderboard information for an authorized broadcaster.
+            </summary>
+            <remarks>
+            Required scope: <c>bits:read</c></remarks>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.ReplaceCustomRewards(TwitchSDK.Interop.CustomRewardList)">
+            <summary>
+            Updates the set of available custom channel points rewards on a channel.
+            </summary>
+            <remarks>
+            Required scope: <c>channel:manage:redemptions</c><para>
+            If you enable any custom rewards, please clear them by invoking this function with an empty
+            rewards list when the game terminates.
+            </para><para>
+            Note that removing rewards that still have pending redemptions will set those redemptions
+            to <see cref="F:TwitchSDK.Interop.CustomRewardRedemptionState.Fulfilled" />.
+            </para></remarks>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.ResolveCustomReward(TwitchSDK.Interop.CustomRewardResolveRequest)">
+            <summary>
+            Updates the status of Custom Reward Redemption objects on a channel that are in the <see cref="F:TwitchSDK.Interop.CustomRewardRedemptionState.Unfulfilled" /> status.
+            </summary>
+            <remarks>
+            Required scope: <c>channel:manage:redemptions</c></remarks>
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.SubscribeToEventStream(TwitchSDK.Interop.EventStreamRequest)" />
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.WaitForCustomRewardEvent(TwitchSDK.Interop.EventStreamDesc)" />
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.SubscribeToEventStream(TwitchSDK.Interop.EventStreamRequest)">
+            <summary>
+            Subscribe to a Twitch EventSub stream.
+            </summary>
+            <remarks>
+            You must periodically receive events from your event stream.
+            You must call <see cref="M:TwitchSDK.Interop.CoreLibrary.CloseEventStream(TwitchSDK.Interop.EventStreamDesc)" /> once you are done.
+            <para>
+            To avoid leaking memory indefinitely in this case, there is an internal limit of 512 buffered
+            events per event stream subscription, as well as an internal limit of 64 subscription per event type in total.
+            When the internal buffer of a subscription is full, incoming events will be discarded silently.
+            When the subscriptions limit is reached, an arbitrary subscription of the same type will be closed, and
+            a warning message will be logged.
+            </para></remarks>
+            <returns>An object describing the subscription.</returns>
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.WaitForChannelSubscribeEvent(TwitchSDK.Interop.EventStreamDesc)" />
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.WaitForChannelFollowEvent(TwitchSDK.Interop.EventStreamDesc)" />
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.WaitForChannelCheerEvent(TwitchSDK.Interop.EventStreamDesc)" />
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.WaitForCustomRewardEvent(TwitchSDK.Interop.EventStreamDesc)" />
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.WaitForHypeTrainEvent(TwitchSDK.Interop.EventStreamDesc)" />
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.WaitForChannelRaidEvent(TwitchSDK.Interop.EventStreamDesc)" />
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.WaitForChannelSubscribeEvent(TwitchSDK.Interop.EventStreamDesc)">
+            <summary>
+            A notification when a specified channel receives a subscriber. This does not include resubscribes.
+            </summary>
+            <remarks>You may only call this with a subscription for the correct event type.</remarks>
+            <param name="desc">An object describing the subscription.</param>
+            <returns>The event.</returns>
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.SubscribeToEventStream(TwitchSDK.Interop.EventStreamRequest)" />
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.WaitForChannelFollowEvent(TwitchSDK.Interop.EventStreamDesc)">
+            <summary>
+            A specified channel receives a follow.
+            </summary>
+            <remarks>You may only call this with a subscription for the correct event type.</remarks>
+            <param name="desc">An object describing the subscription.</param>
+            <returns>The event.</returns>
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.SubscribeToEventStream(TwitchSDK.Interop.EventStreamRequest)" />
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.WaitForChannelCheerEvent(TwitchSDK.Interop.EventStreamDesc)">
+            <summary>
+            A user cheers on the specified channel.
+            </summary>
+            <remarks>You may only call this with a subscription for the correct event type.</remarks>
+            <param name="desc">An object describing the subscription.</param>
+            <returns>The event.</returns>
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.SubscribeToEventStream(TwitchSDK.Interop.EventStreamRequest)" />
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.WaitForCustomRewardEvent(TwitchSDK.Interop.EventStreamDesc)">
+            <summary>
+            A viewer has redeemed a custom channel points reward on the specified channel or the redemption
+            has been updated (i.e., fulfilled or cancelled).
+            </summary>
+            <remarks>You may only call this with a subscription for the correct event type.</remarks>
+            <param name="desc">An object describing the subscription.</param>
+            <returns>The event.</returns>
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.SubscribeToEventStream(TwitchSDK.Interop.EventStreamRequest)" />
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.ReplaceCustomRewards(TwitchSDK.Interop.CustomRewardList)" />
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.WaitForHypeTrainEvent(TwitchSDK.Interop.EventStreamDesc)">
+            <summary>
+            A Hype Train makes progress on the user's channel.
+            Requires the <c>channel:read:hype_train</c> scope.
+            </summary>
+            <remarks>You may only call this with a subscription for the correct event type.</remarks>
+            <param name="desc">An object describing the subscription.</param>
+            <returns>The event.</returns>
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.SubscribeToEventStream(TwitchSDK.Interop.EventStreamRequest)" />
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.WaitForChannelRaidEvent(TwitchSDK.Interop.EventStreamDesc)">
+            <summary>
+            A broadcaster raids another broadcaster’s channel.
+            </summary>
+            <remarks>You may only call this with a subscription for the correct event type.</remarks>
+            <param name="desc">An object describing the subscription.</param>
+            <returns>The event.</returns>
+            <seealso cref="M:TwitchSDK.Interop.CoreLibrary.SubscribeToEventStream(TwitchSDK.Interop.EventStreamRequest)" />
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.CloseEventStream(TwitchSDK.Interop.EventStreamDesc)">
+            <summary>
+            Close a Twitch EventSub subscription.
+            </summary>
+            <remarks>
+            After the subscription is closed, trying to receive events from it is an error.
+            </remarks>
+            <param name="desc">An object describing the subscription.</param>
+        </member>
+        <member name="M:TwitchSDK.Interop.CoreLibrary.PrepareShutdown">
+            <summary>
+            Prepare for shutdown.
+            </summary>
+            <remarks>
+            You should invoke this function and wait for it to return before exiting from your game process.
+            This function resets state associated with your session such as available channel points rewards.
+            </remarks>
+        </member>
+        <member name="T:TwitchSDK.Interop.CoreLibraryException">
+            <summary>
+            Wrapper type for all exceptions thrown by the C++ Core Library.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Interop.MonoPInvokeCallbackAttribute">
+            <summary>
+            Use this attribute to mark methods that will be called back from P/Invoke calls.
+            iOS (and probably other AOT platforms) needs to have delegates registered.
+            Instead of depending on Xamarin.iOS for this, we can just create our own,
+            the iOS runtime just checks for the type name.
+            See: https://docs.microsoft.com/en-gb/xamarin/ios/internals/limitations#reverse-callbacks
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.ManagedPAL">
+            <summary>
+            A standard PAL implementation for .NET environments.
+            You may inherit from this. and override methods as needed.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.Poll">
+            <summary>
+            This object represents a Poll.
+            </summary>
+            <remarks>
+            Use the <see cref="P:TwitchSDK.Poll.Info"/> property to obtain a snapshot of the current poll status.
+            <para>
+            For efficiency, invoke <see cref="M:System.IDisposable.Dispose"/> if you don't require the results of the poll.
+            This stops the background worker that polls updates from the Core library.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:TwitchSDK.Poll.Info">
+            <summary>
+            The current poll status.
+            </summary>
+            <remarks>
+            This property is updated automatically to reflect the current state.
+            Note that it will point to a new <see cref="T:TwitchSDK.Interop.PollInfo"/> object after each update,
+            so keeping a reference to the returned object means that you will not see updated values.
+            </remarks>
+        </member>
+        <member name="P:TwitchSDK.Poll.PollEnded">
+            <summary>
+            This task resolves as soon as the poll has ended.
+            </summary>
+        </member>
+        <member name="M:TwitchSDK.Poll.WaitForUpdate">
+            <summary>
+            Wait for the poll state to update.
+            </summary>
+        </member>
+        <member name="M:TwitchSDK.Poll.FinishPoll">
+            <summary>
+            Finish a poll prematurely.
+            </summary>
+            <remarks>
+            This causes the poll to end immediately.
+            Results are then shown to all viewers, as if the poll had timed out normally.
+            </remarks>
+        </member>
+        <member name="M:TwitchSDK.Poll.DeletePoll">
+            <summary>
+            Cancel a poll.
+            </summary>
+            <remarks>
+            This causes the poll to end immediately.
+            No results are shown.
+            </remarks>
+        </member>
+        <member name="T:TwitchSDK.Prediction">
+            <summary>
+            This object represents a Prediction.
+            </summary>
+            <remarks>
+            Use the <see cref="P:TwitchSDK.Prediction.Info"/> property to obtain a snapshot of the current prediction status.
+            <para>
+            For efficiency, invoke <see cref="M:System.IDisposable.Dispose"/> if you don't require the results of the prediction.
+            This stops the background worker that polls updates from the Core library.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:TwitchSDK.Prediction.Info">
+            <summary>
+            The current prediction status.
+            </summary>
+            <remarks>
+            This property is updated automatically to reflect the current state.
+            Note that it will point to a new <see cref="T:TwitchSDK.Interop.PredictionInfo"/> object after each update,
+            so keeping a reference to the returned object means that you will not see updated values.
+            </remarks>
+        </member>
+        <member name="P:TwitchSDK.Prediction.PredictionLocked">
+            <summary>
+            This task resolves as soon as the prediction is locked.
+            </summary>
+            <remarks>
+            Once the prediction is locked, you should resolve it to one of its outcomes.
+            </remarks>
+        </member>
+        <member name="M:TwitchSDK.Prediction.WaitForUpdate">
+            <summary>
+            Wait for the prediction status to update.
+            </summary>
+        </member>
+        <member name="M:TwitchSDK.Prediction.Lock">
+            <summary>
+            Lock a Prediction prematurely.
+            </summary>
+            <remarks>
+            This causes the Prediction to stop accepting votes immediately, as if the timer had expired.
+            </remarks>
+        </member>
+        <member name="M:TwitchSDK.Prediction.Resolve(TwitchSDK.Interop.PredictionOutcome)">
+            <summary>
+            Resolve a Prediction.
+            </summary>
+            <remarks>
+            Resolving a prediction is allowed even if it's not locked yet.
+            </remarks>
+            <param name="outcome">The winning outcome.</param>
+        </member>
+        <member name="M:TwitchSDK.Prediction.Cancel">
+            <summary>
+            Cancel a Prediction.
+            </summary>
+            <remarks>
+            This immediately ends the Prediction and does not show an outcome or any results to viewers.
+            </remarks>
+        </member>
+        <member name="T:TwitchSDK.TwitchOAuthScope">
+            <summary>
+            Twitch OAuth Scopes.
+            </summary>
+        </member>
+        <member name="M:TwitchSDK.TwitchOAuthScope.#ctor(System.String)">
+            <summary>
+            Construct a custom OAuth Scope from a string.
+            </summary>
+        </member>
+        <member name="T:TwitchSDK.TwitchSDKApi">
+            <summary>
+            The Twitch SDK API.
+            </summary>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.#ctor(System.String,System.Boolean)">
+            <summary>
+            Initialize the Twitch R66 plugin.
+            </summary>
+            <param name="clientId">Your OAuth Client-Id</param>
+            <param name="clientSecret">Your OAuth Client Secret</param>
+            <param name="useEventSubProxy">Do not enable this in releases. This option instructs the plugin to connect to a local EventSubProxy instead of directly to Twitch.</param>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.CreatePAL">
+            <summary>
+            Override this in derived classes to use a custom PAL implementation.
+            </summary>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.GetAuthenticationInfo(TwitchSDK.TwitchOAuthScope[])">
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.GetAuthenticationInfo(System.String)"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.GetAuthState">
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.GetAuthState"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.LogOut">
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.LogOut"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.GetMyUserInfo">
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.GetMyUserInfo"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.GetUserInfoById(System.String)">
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.GetUserInfoById(System.String)"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.GetUserInfoByLoginName(System.String)">
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.GetUserInfoByLoginName(System.String)"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.GetMyStreamInfo">
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.GetMyStreamInfo"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.QueryStreams(TwitchSDK.Interop.StreamQuery)">
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.QueryStreams(TwitchSDK.Interop.StreamQuery)"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.GetStreamInfoById(System.String)">
+            <summary>
+            Gets information about a specific stream.
+            </summary>
+            <param name="id">The channel ID to query for.</param>
+            <returns>An object describing the stream, or <c>null</c> if the channel is offline or does not exist.</returns>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.NewPoll(TwitchSDK.Interop.PollDefinition)">
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.CreatePoll(TwitchSDK.Interop.PollDefinition)"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.CreateClip(System.Boolean)">
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.CreateClip(System.Boolean)"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.CreateStreamMarker(System.String)">
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.CreateStreamMarker(System.String)"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.CheckUserSubscription(System.String)">
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.CheckUserSubscription(System.String)"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.NewPrediction(TwitchSDK.Interop.PredictionDefinition)">
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.CreatePrediction(TwitchSDK.Interop.PredictionDefinition)"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.ModifyChannelInformation(System.String,System.String,System.String,System.Int32,System.String[])">
+            <summary>
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.ModifyChannelInformation(TwitchSDK.Interop.ModifyChannelInfoRequest)" path="/summary"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.ModifyChannelInformation(TwitchSDK.Interop.ModifyChannelInfoRequest)" path="/remarks"/>
+            <para>All parameters are optional, but at least one parameter must be provided.</para>
+            </remarks>
+            <param name="gameId"><inheritdoc cref="F:TwitchSDK.Interop.ModifyChannelInfoRequest.GameId" path="/summary"/></param>
+            <param name="language"><inheritdoc cref="F:TwitchSDK.Interop.ModifyChannelInfoRequest.Language" path="/summary"/></param>
+            <param name="title"><inheritdoc cref="F:TwitchSDK.Interop.ModifyChannelInfoRequest.Title" path="/summary"/></param>
+            <param name="delay"><inheritdoc cref="F:TwitchSDK.Interop.ModifyChannelInfoRequest.Delay" path="/summary"/></param>
+            <param name="tags">
+            <inheritdoc cref="F:TwitchSDK.Interop.ModifyChannelInfoRequest.Tags" path="/summary"/>
+            Pass an empty array to remove all tags from the channel.
+            </param>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.GetBitsLeaderboard(System.Int32,System.String,System.String,System.String)">
+            <summary>
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.GetBitsLeaderboard(TwitchSDK.Interop.BitsLeaderboardRequest)" path="/summary"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.GetBitsLeaderboard(TwitchSDK.Interop.BitsLeaderboardRequest)" path="/remarks"/>
+            </remarks>
+            <param name="count"><inheritdoc cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.Count" path="/summary"/></param>
+            <param name="period"><inheritdoc cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.Period" path="/summary"/></param>
+            <param name="startedAt"><inheritdoc cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.StartedAt" path="/summary"/></param>
+            <param name="userId"><inheritdoc cref="F:TwitchSDK.Interop.BitsLeaderboardRequest.UserId" path="/summary"/></param>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.ReplaceCustomRewards(TwitchSDK.Interop.CustomRewardDefinition[])">
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.ReplaceCustomRewards(TwitchSDK.Interop.CustomRewardList)"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.ResolveCustomReward(TwitchSDK.Interop.CustomRewardEvent,TwitchSDK.Interop.CustomRewardRedemptionState)">
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.ResolveCustomReward(TwitchSDK.Interop.CustomRewardResolveRequest)"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.ResolveCustomReward(TwitchSDK.Interop.CustomRewardResolveRequest)">
+            <inheritdoc cref="M:TwitchSDK.Interop.CoreLibrary.ResolveCustomReward(TwitchSDK.Interop.CustomRewardResolveRequest)"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.SubscribeToEventStream``1(TwitchSDK.Interop.EventStreamKind,System.Func{TwitchSDK.Interop.EventStreamDesc,TwitchSDK.GameTask{``0}})">
+            <remarks>
+            This function creates an EventSub subscription that buffers events.
+            Make sure to routinely poll it for events using <see cref="M:TwitchSDK.EventStream`1.WaitForEvent"/> to avoid memory leaks.
+            You should call <see cref="M:System.IDisposable.Dispose"/> as soon as you no longer wish to receive events.
+            </remarks>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.SubscribeToChannelFollowEvents">
+            <inheritdoc cref="T:TwitchSDK.Interop.ChannelFollowEvent"/>
+            <inheritdoc cref="M:TwitchSDK.TwitchSDKApi.SubscribeToEventStream``1(TwitchSDK.Interop.EventStreamKind,System.Func{TwitchSDK.Interop.EventStreamDesc,TwitchSDK.GameTask{``0}})"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.SubscribeToChannelSubscribeEvents">
+            <inheritdoc cref="T:TwitchSDK.Interop.ChannelSubscribeEvent"/>
+            <inheritdoc cref="M:TwitchSDK.TwitchSDKApi.SubscribeToEventStream``1(TwitchSDK.Interop.EventStreamKind,System.Func{TwitchSDK.Interop.EventStreamDesc,TwitchSDK.GameTask{``0}})"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.SubscribeToChannelCheerEvents">
+            <inheritdoc cref="T:TwitchSDK.Interop.ChannelCheerEvent"/>
+            <inheritdoc cref="M:TwitchSDK.TwitchSDKApi.SubscribeToEventStream``1(TwitchSDK.Interop.EventStreamKind,System.Func{TwitchSDK.Interop.EventStreamDesc,TwitchSDK.GameTask{``0}})"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.SubscribeToCustomRewardEvents">
+            <inheritdoc cref="T:TwitchSDK.Interop.CustomRewardEvent"/>
+            <inheritdoc cref="M:TwitchSDK.TwitchSDKApi.SubscribeToEventStream``1(TwitchSDK.Interop.EventStreamKind,System.Func{TwitchSDK.Interop.EventStreamDesc,TwitchSDK.GameTask{``0}})"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.SubscribeToHypeTrainEvents">
+            <inheritdoc cref="T:TwitchSDK.Interop.HypeTrainEvent"/>
+            <inheritdoc cref="M:TwitchSDK.TwitchSDKApi.SubscribeToEventStream``1(TwitchSDK.Interop.EventStreamKind,System.Func{TwitchSDK.Interop.EventStreamDesc,TwitchSDK.GameTask{``0}})"/>
+        </member>
+        <member name="M:TwitchSDK.TwitchSDKApi.SubscribeToChannelRaidEvents">
+            <inheritdoc cref="T:TwitchSDK.Interop.ChannelRaidEvent"/>
+            <inheritdoc cref="M:TwitchSDK.TwitchSDKApi.SubscribeToEventStream``1(TwitchSDK.Interop.EventStreamKind,System.Func{TwitchSDK.Interop.EventStreamDesc,TwitchSDK.GameTask{``0}})"/>
+        </member>
+        <member name="P:TwitchSDK.TwitchSDKApi.Version">
+            <summary>
+            Obtain the Core Library's version string.
+            </summary>
+        </member>
+    </members>
+</doc>
