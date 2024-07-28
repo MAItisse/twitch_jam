@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello World Extension</title>
+    <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #0000008a; /* Black background */
+            color: #fff;
+            font-family: Arial, sans-serif;
+            overflow: hidden; /* Prevent scrolling */
+            position: relative;
+        }
+        h1 {
+            z-index: 100; /* Ensure the text is above other content */
+        }
+        @keyframes expand {
+            from {
+                transform: scale(.1);
+                opacity: 0.5;
+            }
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 255, 0, 0.5), rgba(255, 0, 0, 0.25));
+            pointer-events: none; /* Make bubbles not interactive */
+        }
+        #settings-button {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        #settings-menu {
+            display: none;
+            position: absolute;
+            top: 20%;
+            left: 10%;
+            padding: 20px;
+            background-color: #444;
+            color: #fff;
+            border: 1px solid #222;
+        }
+        #settings-menu label {
+            display: block;
+            margin-top: 10px;
+        }
+        #settings-menu input {
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- <h1>Hello World, qaerty</h1> -->
+    <button id="settings-button">Settings</button>
+    <div id="settings-menu">
+        <label>
+            Bubble Color:
+            <input type="color" id="bubble-color" value="#00ff00">
+        </label>
+        <label>
+            Bubble Size:
+            <input type="number" id="bubble-size" value="50" min="10" max="200">
+        </label>
+        <button id="save-settings">Save</button>
+    </div>
+</body>
+<script>
+
+    // Replace with your WebSocket server URL
+    const wsUrl = "http://localhost:8000/lobby/connect/streamer?user=mantis&key=6bbd7b1d-cd9a-4cec-887f-7f5a774dc35f";
+
+    // Create a new WebSocket instance
+    const socket = new WebSocket(wsUrl);
+
+    
+
+    let animationDuration = 3; // Default duration in seconds
+    let bubbleColor = '#00ff00';
+    let bubbleSize = 50;
+
+    // Event listener for connection open
+    socket.addEventListener('open', function (event) {
+        console.log('Connected to the WebSocket server');
+        // You can send a message to the server here if needed
+        socket.send('Hello Server!');
+    });
+
+    // Event listener for receiving messages from the server
+    socket.addEventListener('message', function (event) {
+        console.log('Message from server:', event.data);
+        // Handle the received message
+    });
+
+    // Event listener for connection close
+    socket.addEventListener('close', function (event) {
+        console.log('Disconnected from the WebSocket server');
+    });
+
+    // Event listener for errors
+    socket.addEventListener('error', function (event) {
+        console.error('WebSocket error:', event);
+    });
+
+    // Function to send a message to the server
+    function sendMessage(message) {
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send(message);
+        } else {
+            console.error('WebSocket is not open. Ready state:', socket.readyState);
+        }
+    }
+
+    window.Twitch.ext.onContext(function(context) {
+        console.log(context.hlsLatencyBroadcaster);
+        animationDuration = Math.max(1, Math.min(10, context.hlsLatencyBroadcaster)); // Adjusting duration between 1 and 10 seconds
+    });
+
+    document.getElementById('settings-button').addEventListener('click', function() {
+        const settingsMenu = document.getElementById('settings-menu');
+        settingsMenu.style.display = settingsMenu.style.display === 'none' ? 'block' : 'none';
+    });
+    
+    document.getElementById('save-settings').addEventListener('click', function() {
+        bubbleColor = document.getElementById('bubble-color').value;
+        bubbleSize = parseInt(document.getElementById('bubble-size').value, 10);
+        document.getElementById('settings-menu').style.display = 'none';
+        sendMessage('bubbleColor '+ bubbleColor);
+        sendMessage('bubbleSize '+ bubbleSize);
+    });
+
+    document.addEventListener('click', function(event) {
+        socket.send('x: ' + event.clientX / window.innerWidth);
+        socket.send('y: ' + event.clientY / window.innerHeight);
+        
+        // Create a new bubble
+        const bubble = document.createElement('div');
+        bubble.classList.add('bubble');
+
+        // Set the bubble's position and properties
+        bubble.style.width = `${bubbleSize}px`;
+        bubble.style.height = `${bubbleSize}px`;
+        bubble.style.left = `${event.clientX - bubbleSize / 2}px`; // Center the bubble on the click
+        bubble.style.top = `${event.clientY - bubbleSize / 2}px`;  // Center the bubble on the click
+        bubble.style.background = `radial-gradient(circle, ${bubbleColor}80, ${bubbleColor}40)`;
+
+        // Set the animation duration based on the latency
+        bubble.style.animation = `expand ${animationDuration}s forwards`;
+
+        // Append the bubble to the body
+        document.body.appendChild(bubble);
+
+        // Remove the bubble from the DOM after the animation completes
+        bubble.addEventListener('animationend', () => {
+            bubble.remove();
+        });
+
+        
+
+    // Example usage: sending a message after 2 seconds
+    // setTimeout(() => {
+    //     sendMessage('Hello again, Server!');
+    // }, 2000);
+    });
+</script>
+</html>
