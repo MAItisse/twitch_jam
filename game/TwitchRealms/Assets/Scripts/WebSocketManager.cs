@@ -14,15 +14,19 @@ public class WebSocketManager : MonoBehaviour
     string url = "https://websocket.matissetec.dev/lobby/new?user=";
     private WebSocket ws;
     private bool isRunning = false;
-    private float keepAliveInterval = 30.0f;
+    private float keepAliveInterval = 10.0f; // Increased keep-alive frequency
+    int channelId = 0;
+    private int reconnectionAttempts = 0;
+    private const int maxReconnectionAttempts = 5;
+    private float reconnectionDelay = 2.0f;
 
     private void Update()
     {
         if (!sent && Twitch.API.GetMyStreamInfo().IsCompleted)
         {
             sent = true;
-            var channelId = int.Parse(Twitch.API.GetMyUserInfo().MaybeResult.ChannelId);
-            StartCoroutine(CreateRoom(channelId));
+            channelId = int.Parse(Twitch.API.GetMyUserInfo().MaybeResult.ChannelId);
+            StartCoroutine(ReconnectWithDelay());
         }
 
         if (Input.GetKeyDown(KeyCode.E))
@@ -32,7 +36,7 @@ public class WebSocketManager : MonoBehaviour
         }
     }
 
-    IEnumerator CreateRoom(int channelId)
+    IEnumerator CreateRoom()
     {
         Debug.Log(url + channelId);
 
@@ -57,7 +61,7 @@ public class WebSocketManager : MonoBehaviour
             string responseText = request.downloadHandler.text;
             Debug.Log("Response: " + responseText);
 
-            ws = new($"wss://websocket.matissetec.dev/lobby/connect/streamer?user={channelId}&key={responseText}");
+            ws = new WebSocket($"wss://websocket.matissetec.dev/lobby/connect/streamer?user={channelId}&key={responseText}");
 
             // Attach event handlers
             ws.OnMessage += OnMessageReceived;
@@ -68,6 +72,7 @@ public class WebSocketManager : MonoBehaviour
             // Connect to the WebSocket server
             ws.Connect();
             isRunning = true;
+            reconnectionAttempts = 0; // Reset reconnection attempts on successful connection
             StartCoroutine(SendKeepAlive());
         }
     }
@@ -85,11 +90,23 @@ public class WebSocketManager : MonoBehaviour
     private void OnClose(object sender, CloseEventArgs e)
     {
         Debug.Log("WebSocket connection closed with reason: " + e.Reason);
+        isRunning = false;
+        if (reconnectionAttempts < maxReconnectionAttempts)
+        {
+            reconnectionAttempts++;
+            StartCoroutine(ReconnectWithDelay());
+            isRunning = true;
+        }
+        else
+        {
+            Debug.LogError("Max reconnection attempts reached. Unable to reconnect to WebSocket.");
+        }
     }
 
     private void OnError(object sender, ErrorEventArgs e)
     {
         Debug.Log("WebSocket error: " + e.Message);
+        StartCoroutine(ReconnectWithDelay());
     }
 
     public void SendMessage(string message)
@@ -107,9 +124,21 @@ public class WebSocketManager : MonoBehaviour
             if (ws != null && ws.IsAlive)
             {
                 ws.Ping();
+                Debug.Log("sending keep alive");
             }
-            yield return new WaitForSeconds(keepAliveInterval);
+            else
+            {
+                StartCoroutine(ReconnectWithDelay());
+            }
+            yield return new WaitForSecondsRealtime(keepAliveInterval);
         }
+    }
+
+    private IEnumerator ReconnectWithDelay()
+    {
+        yield return new WaitForSeconds(reconnectionDelay);
+        StartCoroutine(CreateRoom());
+        StartCoroutine(SendKeepAlive());
     }
 
     void OnDestroy()
