@@ -62,10 +62,22 @@
         #settings-menu input {
             margin-top: 5px;
         }
+        #reconnect-button {
+            position: absolute;
+            left: 10px;
+            top: 60%;
+            transform: translateY(-50%);
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <button id="settings-button">Settings</button>
+    <button id="reconnect-button">Reconnect</button>
     <div id="settings-menu">
         <label>
             Bubble Color:
@@ -80,38 +92,37 @@
 </body>
 <script>
     window.Twitch.ext.onAuthorized(function(auth) {
-        // console.log('The JWT that will be passed to the EBS is', auth.token);
-        console.log('The channel ID is', auth.channelId);
-        let wsUrl = "wss://websocket.matissetec.dev/lobby/connect?user="+auth.channelId;
-        console.log(wsUrl);
-        const socket = new WebSocket(wsUrl);
+        let wsUrl = "wss://websocket.matissetec.dev/lobby/connect?user=" + auth.channelId;
+        let socket;
         const userId = auth.userId;
 
-        socket.addEventListener('open', function (event) {
-            console.log('Connected to the WebSocket server');
-            // You can send a message to the server here if needed
-            socket.send('Hello Server!');
-        });
+        function connectWebSocket() {
+            socket = new WebSocket(wsUrl);
 
-        // Event listener for receiving messages from the server
-        socket.addEventListener('message', function (event) {
-            console.log('Message from server:', event.data);
-            // Handle the received message
-        });
+            socket.addEventListener('open', function (event) {
+                console.log('Connected to the WebSocket server');
+                socket.send('Hello Server!');
+            });
 
-        socket.addEventListener('close', function (event) {
-            console.log('Disconnected from the WebSocket server');
-        });
+            socket.addEventListener('message', function (event) {
+                console.log('Message from server:', event.data);
+            });
 
-        socket.addEventListener('error', function (event) {
-            console.error('WebSocket error:', event);
-        });
+            socket.addEventListener('close', function (event) {
+                console.log('Disconnected from the WebSocket server');
+            });
+
+            socket.addEventListener('error', function (event) {
+                console.error('WebSocket error:', event);
+            });
+        }
+
+        connectWebSocket();
 
         let animationDuration = 3; // Default duration in seconds
         let bubbleColor = '#00ff00';
         let bubbleSize = 50;
 
-        // send message to server
         function sendMessage(message) {
             if (socket.readyState === WebSocket.OPEN) {
                 socket.send(message);
@@ -121,53 +132,50 @@
         }
 
         window.Twitch.ext.onContext(function(context) {
-            console.log(context.hlsLatencyBroadcaster);
-            animationDuration = Math.max(1, Math.min(10, context.hlsLatencyBroadcaster)); // Adjusting duration between 1 and 10 seconds
+            animationDuration = Math.max(1, Math.min(10, context.hlsLatencyBroadcaster));
         });
 
         document.getElementById('settings-button').addEventListener('click', function() {
             const settingsMenu = document.getElementById('settings-menu');
             settingsMenu.style.display = settingsMenu.style.display === 'none' ? 'block' : 'none';
         });
-        
+
         document.getElementById('save-settings').addEventListener('click', function() {
             bubbleColor = document.getElementById('bubble-color').value;
             bubbleSize = parseInt(document.getElementById('bubble-size').value, 10);
             document.getElementById('settings-menu').style.display = 'none';
-            data = {
+            const data = {
                 bubbleColor: bubbleColor,
                 bubbleSize: bubbleSize,
                 userId: userId
-            }
+            };
             sendMessage(JSON.stringify(data));
         });
 
+        document.getElementById('reconnect-button').addEventListener('click', function() {
+            // if (socket) {
+            //     socket.close();
+            // }
+            connectWebSocket();
+        });
+
         document.addEventListener('click', function(event) {
-            data = {
+            const data = {
                 x: event.clientX / window.innerWidth,
                 y: event.clientY / window.innerHeight,
                 userId: userId
-            }
-            socket.send(JSON.stringify(data));
-            
-            // Create a new bubble
+            };
+            sendMessage(JSON.stringify(data));
+
             const bubble = document.createElement('div');
             bubble.classList.add('bubble');
-
-            // Set the bubble's position and properties
             bubble.style.width = `${bubbleSize}px`;
             bubble.style.height = `${bubbleSize}px`;
-            bubble.style.left = `${event.clientX - bubbleSize / 2}px`; // Center the bubble on the click
-            bubble.style.top = `${event.clientY - bubbleSize / 2}px`;  // Center the bubble on the click
+            bubble.style.left = `${event.clientX - bubbleSize / 2}px`;
+            bubble.style.top = `${event.clientY - bubbleSize / 2}px`;
             bubble.style.background = `radial-gradient(circle, ${bubbleColor}80, ${bubbleColor}40)`;
-
-            // Set the animation duration based on the latency
             bubble.style.animation = `expand ${animationDuration}s forwards`;
-
-            // Append the bubble to the body
             document.body.appendChild(bubble);
-
-            // Remove the bubble from the DOM after the animation completes
             bubble.addEventListener('animationend', () => {
                 bubble.remove();
             });
