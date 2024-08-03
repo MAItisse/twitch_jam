@@ -84,10 +84,27 @@
           opacity: 0;
         }
       }
+
+      #units-container {
+          width: 100%;
+          height: 100%;
+      }
+      .unit {
+          --size: 15px;
+
+          position: absolute;
+          background-color: red;
+
+          width: var(--size);
+          height: var(--size);
+          border-radius: var(--size);
+
+          left: var(--x);
+          top: var(--y);
+      }
     </style>
   </head>
   <body>
-    <div id="minimap-container">
       <button id="settings-button">Settings</button>
       <button id="reconnect-button">Reconnect</button>
       <div id="settings-menu">
@@ -101,6 +118,8 @@
         </label>
         <button id="save-settings">Save</button>
       </div>
+    <div id="minimap-container">
+      <div id="units-container" />
     </div>
   </body>
   <script>
@@ -109,6 +128,26 @@
       userId: "468106723",
     };
     const TESTING = window.location.hostname == "localhost";
+
+    function updateMinimap(data) {
+        console.log("Updating minimap");
+        let container = document.getElementById("units-container");
+        for (const unit of data) {
+            let node = document.getElementById(unit.id);
+            if (node === null) {
+                console.log("creating new node for", unit.id);
+
+                node = document.createElement("div");
+                container.appendChild(node);
+
+                node.id = unit.id;
+                node.classList.add("unit");
+            }
+
+            node.style.setProperty("--x", `${unit.x * 100}%`);
+            node.style.setProperty("--y", `${unit.y * 100}%`);
+        }
+    }
 
     function runGameJam(auth) {
       let wsUrl =
@@ -125,7 +164,9 @@
         });
 
         socket.addEventListener("message", function (event) {
-          console.log("Message from server:", event.data);
+          <!-- console.log("Message from server:", event.data); -->
+          let data = JSON.parse(event.data);
+          updateMinimap(data.data) 
         });
 
         socket.addEventListener("close", function (event) {
