@@ -76,11 +76,11 @@
 
       @keyframes expand {
         from {
-          transform: scale(0.1);
+          scale: 0.1;
           opacity: 0.5;
         }
         to {
-          transform: scale(2);
+          scale: 2;
           opacity: 0;
         }
       }
@@ -101,6 +101,22 @@
 
           left: var(--x);
           top: var(--y);
+          transform: translate(-50%, -50%);
+      }
+      .unit_enter_bubble {
+          position: absolute;
+
+          --size: 100px;
+          width: var(--size);
+          height: var(--size);
+          border-radius: var(--size);
+
+          left: 50%;
+          top: 50%;
+          translate: -50% -50%;
+
+          background-color: red;
+          animation: expand 2s linear;
       }
     </style>
   </head>
@@ -142,6 +158,14 @@
 
                 node.id = unit.id;
                 node.classList.add("unit");
+                
+                let bubble = document.createElement("div");
+                bubble.classList.add("unit_enter_bubble");
+                node.appendChild(bubble); 
+
+                bubble.addEventListener("animationend", () => {
+                  bubble.remove();
+                });
             }
 
             node.style.setProperty("--x", `${unit.x * 100}%`);
