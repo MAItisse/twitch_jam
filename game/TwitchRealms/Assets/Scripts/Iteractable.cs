@@ -6,6 +6,7 @@ using UnityEngine;
 public class Iteractable : MonoBehaviour
 {
     private readonly float radius = 1.25f;
+    private WebSocketManager websocket;
     // Start is called before the first frame update
     void Start()
     {
@@ -14,6 +15,8 @@ public class Iteractable : MonoBehaviour
         var rigidBody = gameObject.AddComponent<Rigidbody>();
         triggerRange.radius = radius;
         triggerRange.isTrigger = true;
+
+        websocket = GameObject.FindObjectOfType<WebSocketManager>();
     }
 
     // Update is called once per frame
@@ -24,14 +27,11 @@ public class Iteractable : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.TryGetComponent<Controllable>(out var controllableCharacter))
-        {
-            controllableCharacter.enabled = false;
-            var newControllable = gameObject.GetOrAddComponent<Controllable>();
-            newControllable.enabled = true;
-            newControllable.speed = Random.Range(1.25f, 2.25f);
-            Camera.main.GetComponent<FollowCamera>().followMe = newControllable.gameObject.transform;
-        }
+        Debug.Log(other.gameObject.name);
+        websocket.SendMessage($"following {other.gameObject.name}");
+        // combine 
+
+        // todo set combine based on results of poll
     }
 
     private void OnDrawGizmos()

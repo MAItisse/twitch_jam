@@ -14,11 +14,17 @@ public class WebSocketManager : MonoBehaviour
     string url = "https://websocket.matissetec.dev/lobby/new?user=";
     private WebSocket ws;
     private bool isRunning = false;
-    private float keepAliveInterval = 10.0f; // Increased keep-alive frequency
+    private float keepAliveInterval = 30.0f; // Increased keep-alive frequency
     int channelId = 0;
     private int reconnectionAttempts = 0;
     private const int maxReconnectionAttempts = 5;
     private float reconnectionDelay = 2.0f;
+
+    private void Start()
+    {
+        // this is so we can keep the keepalive running while the service is not focused
+        Application.runInBackground = true;
+    }
 
     private void Update()
     {

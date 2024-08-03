@@ -1,25 +1,55 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class FollowCamera : MonoBehaviour
 {
     public Transform followMe;
     public Vector3 offset;
-    public float speed;//, easing;
-    // Start is called before the first frame update
+    public float followSpeed = 5f;
+    public float rotationSpeed = 10f;
+    public float rotationAngle = 90f; // The angle by which to rotate when space is pressed
+
+    private Vector3 currentOffset;
+    private Vector3 currentVelocity;
+    private bool rotateOnSpace = false;
+
     void Start()
     {
-        
+        currentOffset = offset;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        Vector3 desiredPosition = followMe.position + offset;
-        Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, speed * Time.deltaTime);
+        HandleCameraFollow();
+        HandleCameraRotation();
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            RotateCamera();
+        }
+    }
+
+    void HandleCameraFollow()
+    {
+        Vector3 desiredPosition = followMe.position + currentOffset;
+        Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, desiredPosition, ref currentVelocity, followSpeed * Time.deltaTime);
         transform.position = smoothedPosition;
-        transform.LookAt(followMe);
+    }
+
+    void HandleCameraRotation()
+    {
+        Vector3 direction = followMe.position - transform.position;
+        Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
+        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+    }
+
+    void RotateCamera()
+    {
+        // Rotate the camera by the specified angle around the player
+        transform.RotateAround(followMe.position, Vector3.up, rotationAngle);
+
+        // Update the offset based on the new camera position
+        currentOffset = transform.position - followMe.position;
     }
 }

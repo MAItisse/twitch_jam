@@ -7,10 +7,13 @@ public class ChannelPointListener : MonoBehaviour
 {
     private GameTask<EventStream<CustomRewardEvent>> _customRewardEvents;
     private Dictionary<string, string> _viewers = new();
+    private ItemGenerator _itemGenerator;
+    public Combinable spawnable;
 
     private void Start()
     {
         _customRewardEvents = Twitch.API.SubscribeToCustomRewardEvents();
+        _itemGenerator = GameObject.FindObjectOfType<ItemGenerator>();
     }
 
     private void Update()
@@ -23,7 +26,8 @@ public class ChannelPointListener : MonoBehaviour
             Debug.Log($"{curRewardEvent.RedeemerName} has brought {curRewardEvent.CustomRewardTitle} for {curRewardEvent.CustomRewardCost} {curRewardEvent.UserInput}!");
             switch (curRewardEvent.CustomRewardTitle)
             {
-                case "TITLE":
+                case "Add Sphere To World":
+                    _itemGenerator.GenerateGameObject(spawnable.gameObject);
                     break;
                 default:
                     Debug.Log("Reward not found!");
