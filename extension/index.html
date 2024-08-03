@@ -98,7 +98,7 @@
     };
     const TESTING = window.location.hostname == "localhost";
 
-    function doShit(auth) {
+    function runGameJam(auth) {
       let wsUrl =
         "wss://websocket.matissetec.dev/lobby/connect?user=" + auth.channelId;
       let socket;
@@ -207,9 +207,9 @@
     }
 
     if (TESTING) {
-      doShit(TestAuth);
+      runGameJam(TestAuth);
     } else {
-      window.Twitch.ext.onAuthorized(doShit);
+      window.Twitch.ext.onAuthorized(runGameJam);
     }
   </script>
 </html>
