@@ -12,17 +12,10 @@ public class FollowCamera : MonoBehaviour
 
     private Vector3 currentOffset;
     private Vector3 currentVelocity;
-    private bool rotateOnSpace = false;
 
     void Update()
     {
         HandleCameraFollow();
-        HandleCameraRotation();
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            RotateCamera();
-        }
     }
 
     void HandleCameraFollow()
@@ -30,21 +23,5 @@ public class FollowCamera : MonoBehaviour
         Vector3 desiredPosition = followMe.position + offset;
         Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, desiredPosition, ref currentVelocity, followSpeed * Time.deltaTime);
         transform.position = smoothedPosition;
-    }
-
-    void HandleCameraRotation()
-    {
-        Vector3 direction = followMe.position - transform.position;
-        Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
-        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-    }
-
-    void RotateCamera()
-    {
-        // Rotate the camera by the specified angle around the player
-        transform.RotateAround(followMe.position, Vector3.up, rotationAngle);
-
-        // Update the offset based on the new camera position
-        currentOffset = transform.position - followMe.position;
     }
 }

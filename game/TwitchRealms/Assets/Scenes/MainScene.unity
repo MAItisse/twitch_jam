@@ -714,7 +714,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   followMe: {fileID: 1551331067}
-  offset: {x: 0, y: 5, z: -7}
+  offset: {x: 0, y: 4, z: -12}
   followSpeed: 5
   rotationSpeed: 10
   rotationAngle: 90
@@ -1203,6 +1203,9 @@ GameObject:
   - component: {fileID: 724244369}
   - component: {fileID: 724244370}
   - component: {fileID: 724244371}
+  - component: {fileID: 724244372}
+  - component: {fileID: 724244374}
+  - component: {fileID: 724244373}
   m_Layer: 0
   m_Name: ConnectionManager
   m_TagString: Untagged
@@ -1273,6 +1276,42 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d792189b8ad3d13458d4aefd4b6977e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &724244372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 724244366}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cac84b4c3a9273743a94dc2a63738879, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &724244373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 724244366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36c543a7ed30d48408f49a3768ebeaef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &724244374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 724244366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a543fe1ec9651049a6f17499cf02f58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &832575517
