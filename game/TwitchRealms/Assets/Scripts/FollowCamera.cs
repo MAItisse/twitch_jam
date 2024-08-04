@@ -14,11 +14,6 @@ public class FollowCamera : MonoBehaviour
     private Vector3 currentVelocity;
     private bool rotateOnSpace = false;
 
-    void Start()
-    {
-        currentOffset = offset;
-    }
-
     void Update()
     {
         HandleCameraFollow();
@@ -32,7 +27,7 @@ public class FollowCamera : MonoBehaviour
 
     void HandleCameraFollow()
     {
-        Vector3 desiredPosition = followMe.position + currentOffset;
+        Vector3 desiredPosition = followMe.position + offset;
         Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, desiredPosition, ref currentVelocity, followSpeed * Time.deltaTime);
         transform.position = smoothedPosition;
     }
