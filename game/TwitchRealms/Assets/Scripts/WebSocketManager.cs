@@ -19,6 +19,20 @@ public class WebSocketManager : MonoBehaviour
     private int reconnectionAttempts = 0;
     private const int maxReconnectionAttempts = 5;
     private float reconnectionDelay = 2.0f;
+    private static WebSocketManager instance;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        } 
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     private void Start()
     {

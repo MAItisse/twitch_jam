@@ -35,7 +35,7 @@ public class MapConnector : MonoBehaviour
         Vector3 planeMax = planeCenter + new Vector3(planeSizeX / 2f, 0f, planeSizeZ / 2f);
         while (websocket != null)
         {
-            yield return new WaitForSeconds(5);
+            yield return new WaitForSeconds(.1f);
 
             var coords = "{'data':[";
             foreach (var combinable in combinables)

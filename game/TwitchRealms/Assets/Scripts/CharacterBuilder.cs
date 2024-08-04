@@ -7,6 +7,7 @@ public class CharacterBuilder : MonoBehaviour
 
     private List<Combinable> character;
     private List<Vector3> body;
+    private bool battleReady = false;
 
     private void Start()
     {
@@ -29,6 +30,12 @@ public class CharacterBuilder : MonoBehaviour
         };
     }
 
+    public void BattleReady(bool isBattleReady)
+    {
+        battleReady = isBattleReady;
+    }
+
+    public bool isBattleReady => battleReady;
     public void AddCombinable(Combinable combinable)
     {
         int partIndex = character.Count - 1;
