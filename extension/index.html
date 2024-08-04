@@ -234,6 +234,8 @@
 
         socket.addEventListener("open", function (event) {
           console.log("Connected to the WebSocket server");
+          let container = document.getElementById("minimap-container");
+          container.style.display = "inital";
           socket.send("Hello Server!");
         });
 
@@ -248,6 +250,8 @@
         });
 
         socket.addEventListener("error", function (event) {
+          let container = document.getElementById("minimap-container");
+          container.style.display = "none";
           console.error("WebSocket error:", event);
         });
       }
