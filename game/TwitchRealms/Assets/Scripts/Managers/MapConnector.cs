@@ -14,10 +14,24 @@ public class MapConnector : MonoBehaviour
     void Start()
     {
         combinables = new List<Combinable>();
-        combinables.AddRange(gameObject.GetComponentsInChildren<Combinable>());
+        // go to all current enabled children and get their children nodes and check them for combinable
+        UpdateMapWorld();
+        //combinables.AddRange(gameObject.GetComponentsInChildren<Combinable>());
         planeTransform = GameObject.Find("Ground").transform;/* reference to your plane transform */;
         websocket = FindObjectOfType<WebSocketManager>();
         StartCoroutine(UpdateLobby());
+    }
+
+    public void UpdateMapWorld()
+    {
+        combinables.Clear();
+        foreach (Transform child in gameObject.transform)
+        {
+            if (child.gameObject.activeInHierarchy)
+            {
+                combinables.AddRange(child.GetComponentsInChildren<Combinable>());
+            }
+        }
     }
 
     public void AddCombinable(Combinable combinable)

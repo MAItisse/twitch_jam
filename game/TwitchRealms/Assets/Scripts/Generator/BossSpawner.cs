@@ -8,6 +8,6 @@ public class BossSpawner : MonoBehaviour
 
     private void Start()
     {
-        Instantiate(boss);
+        Instantiate(boss, transform);
     }
 }
