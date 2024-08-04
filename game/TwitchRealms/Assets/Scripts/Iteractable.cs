@@ -13,6 +13,7 @@ public class Iteractable : MonoBehaviour
         var collider = gameObject.AddComponent<BoxCollider>();
         var triggerRange = gameObject.AddComponent<SphereCollider>();
         var rigidBody = gameObject.AddComponent<Rigidbody>();
+        collider.center = collider.center + new Vector3(0, .5f, 0);
         triggerRange.radius = radius;
         triggerRange.isTrigger = true;
 

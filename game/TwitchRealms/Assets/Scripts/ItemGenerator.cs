@@ -5,10 +5,18 @@ using UnityEngine;
 public class ItemGenerator : MonoBehaviour
 {
     public float range;
-    public void GenerateGameObject(GameObject go)
+
+    private MapConnector connector;
+    private void Start()
     {
-        Vector3 spawnPosition = transform.position + new Vector3(Random.Range(-range, range), 0, Random.Range(-range, range));
-        Instantiate(go, spawnPosition, Quaternion.identity, transform.parent);
+        connector = GameObject.FindObjectOfType<MapConnector>();
+    }
+
+    public void GenerateGameObject(GameObject combinable)
+    {
+        Vector3 spawnPosition = transform.position + new Vector3(Random.Range(-range, range), 0.5f, Random.Range(-range, range));
+        GameObject go = Instantiate(combinable, spawnPosition, Quaternion.identity, transform.parent);
+        connector.AddCombinable(go.GetComponent<Combinable>());
     }
 
     private void OnDrawGizmos()

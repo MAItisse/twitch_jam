@@ -8,7 +8,7 @@ public class ChannelPointListener : MonoBehaviour
     private GameTask<EventStream<CustomRewardEvent>> _customRewardEvents;
     private Dictionary<string, string> _viewers = new();
     private ItemGenerator _itemGenerator;
-    public Combinable spawnable;
+    public Combinable sphere, cube;
 
     private void Start()
     {
@@ -27,7 +27,10 @@ public class ChannelPointListener : MonoBehaviour
             switch (curRewardEvent.CustomRewardTitle)
             {
                 case "Add Sphere To World":
-                    _itemGenerator.GenerateGameObject(spawnable.gameObject);
+                    _itemGenerator.GenerateGameObject(sphere.gameObject);
+                    break;
+                case "Add Cube To World":
+                    _itemGenerator.GenerateGameObject(cube.gameObject);
                     break;
                 default:
                     Debug.Log("Reward not found!");

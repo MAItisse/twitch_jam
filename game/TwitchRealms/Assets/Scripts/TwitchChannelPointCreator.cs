@@ -6,14 +6,16 @@ using TwitchSDK.Interop;
 
 public class TwitchChannelPointCreator : MonoBehaviour
 {
-    private CustomRewardDefinition addSphere;
+    private CustomRewardDefinition addSphere, addCube;
     List<CustomRewardDefinition> _cDefinitionList;
 
     private void Start()
     {
         _cDefinitionList = new List<CustomRewardDefinition>();
         addSphere = AddChannelPoint("Add Sphere To World", 1, "#FC3903");
+        addCube = AddChannelPoint("Add Cube To World", 2, "#2CF933");
         _cDefinitionList.Add(addSphere);
+        _cDefinitionList.Add(addCube);
         SetSampleRewards();
     }
 
