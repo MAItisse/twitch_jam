@@ -27,9 +27,9 @@
         color: #fff;
         border: 2px solid #333;
         border-radius: 8px;
-        padding: 10px;
         box-sizing: border-box;
         margin: 10px; /* Add some margin from the edge */
+        overflow: hidden;
       }
 
       .bubble {
@@ -85,24 +85,53 @@
         }
       }
 
-      #units-container {
+      #units-container, #background, #background-animation {
           width: 100%;
           height: 100%;
+
+      }
+      #background {
+          background-image: repeating-radial-gradient(gray, gray 2px, transparent 2px, transparent 10px),
+                            repeating-conic-gradient(gray, gray 2deg, transparent 2deg, transparent 20deg);
+      }
+      #background-animation {
+          scale: 1.5;
+
+          background-image: conic-gradient(transparent, rgb(130, 200, 130) 5deg, transparent 90deg);
+          animation: scan 8s linear infinite;
+      }
+      @keyframes scan {
+          from {
+              rotate: 360deg;
+          }
+          to {
+              rotate: 0deg;
+          }
       }
       .unit {
           --size: 15px;
 
           position: absolute;
-          background-color: red;
 
           width: var(--size);
           height: var(--size);
-          border-radius: var(--size);
 
           left: var(--x);
           top: var(--y);
           transform: translate(-50%, -50%);
+
+          opacity: 0.8;
+          border: white solid 0.5px;
       }
+
+      .Sphere {
+          background-color: yellow;
+          border-radius: var(--size);
+      }
+      .Cube {
+          background-color: red;
+      }
+
       .unit_enter_bubble {
           position: absolute;
 
@@ -115,7 +144,7 @@
           top: 50%;
           translate: -50% -50%;
 
-          background-color: red;
+          background-color: rgb(170, 220, 170);
           animation: expand 2s linear;
       }
     </style>
@@ -135,7 +164,12 @@
         <button id="save-settings">Save</button>
       </div>
     <div id="minimap-container">
-      <div id="units-container" />
+      <div id="units-container">
+          <div id="background">
+              <!-- <div id="background-animation"> -->
+              <!-- </div> -->
+          </div>
+      </div>
     </div>
   </body>
   <script>
@@ -158,6 +192,7 @@
 
                 node.id = unit.id;
                 node.classList.add("unit");
+                node.classList.add(unit.kind);
                 
                 let bubble = document.createElement("div");
                 bubble.classList.add("unit_enter_bubble");
