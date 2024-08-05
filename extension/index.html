@@ -125,11 +125,11 @@
       }
 
       .Sphere {
-          background-color: yellow;
+          background-color: rgb(186, 125, 12);
           border-radius: var(--size);
       }
       .Cube {
-          background-color: red;
+          background-color: rgb(101, 122, 9);
       }
       .Player {
           --size: 40px;
@@ -139,6 +139,9 @@
       }
       .Suzanne {
           background-color: rgb(21, 142, 0);
+      }
+      .Bozz {
+            background-color: rgb(255, 0, 0);
       }
 
       .unit_enter_bubble {
@@ -226,6 +229,13 @@
         }
     }
 
+    function resetMinimap() {
+        let units = Array.from(document.getElementsByClassName("unit"));
+        for (const unit of units) {
+            unit.remove();
+        }
+    }
+
     function runGameJam(auth) {
       let wsUrl =
         "wss://websocket.matissetec.dev/lobby/connect?user=" + auth.channelId;
@@ -245,7 +255,11 @@
         socket.addEventListener("message", function (event) {
           <!-- console.log("Message from server:", event.data); -->
           let data = JSON.parse(event.data);
-          updateMinimap(data.data) 
+          if (data.data.hasOwnProperty("reset")) {
+            console.log("Resetting minimap");
+            resetMinimap();
+          }
+          updateMinimap(data.data);
         });
 
         socket.addEventListener("close", function (event) {
