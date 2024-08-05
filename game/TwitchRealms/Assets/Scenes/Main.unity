@@ -1384,7 +1384,7 @@ PrefabInstance:
     - target: {fileID: 4067439053566331101, guid: 959f00ee0fb4c9f4d846734eda68ba8a,
         type: 3}
       propertyPath: m_Name
-      value: suzanne
+      value: Suzanne
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4218,7 +4218,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ba285c3f92003746a37597b917769a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boss: {fileID: 4067439053566331101, guid: 959f00ee0fb4c9f4d846734eda68ba8a, type: 3}
 --- !u!1 &1841037136
 GameObject:
   m_ObjectHideFlags: 0

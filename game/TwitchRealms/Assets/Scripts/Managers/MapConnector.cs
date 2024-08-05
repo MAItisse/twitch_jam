@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class MapConnector : MonoBehaviour
@@ -59,14 +58,16 @@ public class MapConnector : MonoBehaviour
                 float relativeX = Mathf.Clamp((objectWorldPos.x - planeMin.x) / (planeMax.x - planeMin.x), 0f, 1f);
                 float relativeZ = Mathf.Clamp((objectWorldPos.z - planeMin.z) / (planeMax.z - planeMin.z), 0f, 1f);
                 Vector2 normalizedCoords = new(relativeX, relativeZ);
-
+                var kind = combinable.name.Split(' ')[0].Replace("(Clone)", "");
+                if (combinable.gameObject.TryGetComponent<HeadMount>(out var headMount))
+                    kind = headMount.name;
                 // Send the normalized coordinates instead of raw positions
                 MiniMapObject miniMap = new()
                 {
                     id = combinable.GetInstanceID(),
                     x = normalizedCoords.x,
                     y = normalizedCoords.y,
-                    kind = combinable.name.Split(' ')[0].Replace("(Clone)", "")
+                    kind = kind
                 };
                 coords += JsonUtility.ToJson(miniMap) + ",";
             }
