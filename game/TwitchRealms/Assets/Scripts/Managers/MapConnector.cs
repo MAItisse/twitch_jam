@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class MapConnector : MonoBehaviour
@@ -14,10 +13,24 @@ public class MapConnector : MonoBehaviour
     void Start()
     {
         combinables = new List<Combinable>();
-        combinables.AddRange(gameObject.GetComponentsInChildren<Combinable>());
+        // go to all current enabled children and get their children nodes and check them for combinable
+        UpdateMapWorld();
+        //combinables.AddRange(gameObject.GetComponentsInChildren<Combinable>());
         planeTransform = GameObject.Find("Ground").transform;/* reference to your plane transform */;
         websocket = FindObjectOfType<WebSocketManager>();
         StartCoroutine(UpdateLobby());
+    }
+
+    public void UpdateMapWorld()
+    {
+        combinables.Clear();
+        foreach (Transform child in gameObject.transform)
+        {
+            if (child.gameObject.activeInHierarchy)
+            {
+                combinables.AddRange(child.GetComponentsInChildren<Combinable>());
+            }
+        }
     }
 
     public void AddCombinable(Combinable combinable)
@@ -45,14 +58,16 @@ public class MapConnector : MonoBehaviour
                 float relativeX = Mathf.Clamp((objectWorldPos.x - planeMin.x) / (planeMax.x - planeMin.x), 0f, 1f);
                 float relativeZ = Mathf.Clamp((objectWorldPos.z - planeMin.z) / (planeMax.z - planeMin.z), 0f, 1f);
                 Vector2 normalizedCoords = new(relativeX, relativeZ);
-
+                var kind = combinable.name.Split(' ')[0].Replace("(Clone)", "");
+                if (combinable.gameObject.TryGetComponent<HeadMount>(out var headMount))
+                    kind = headMount.name;
                 // Send the normalized coordinates instead of raw positions
                 MiniMapObject miniMap = new()
                 {
                     id = combinable.GetInstanceID(),
                     x = normalizedCoords.x,
                     y = normalizedCoords.y,
-                    kind = combinable.name.Split(' ')[0].Replace("(Clone)", "")
+                    kind = kind
                 };
                 coords += JsonUtility.ToJson(miniMap) + ",";
             }
