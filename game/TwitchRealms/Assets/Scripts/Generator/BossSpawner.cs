@@ -6,8 +6,8 @@ public class BossSpawner : MonoBehaviour
 {
     public GameObject boss;
 
-    private void Start()
+    private void Awake()
     {
-        Instantiate(boss, transform);
+        Instantiate(boss, transform.position, Quaternion.identity, transform.parent);
     }
 }

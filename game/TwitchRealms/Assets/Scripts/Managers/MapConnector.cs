@@ -1,37 +1,44 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class MapConnector : MonoBehaviour
 {
-    List<Combinable> combinables;
+    HashSet<Combinable> combinables;
     Transform planeTransform;
     private WebSocketManager websocket;
     public Iteractable iteractable;
 
     void Start()
     {
-        combinables = new List<Combinable>();
-        // go to all current enabled children and get their children nodes and check them for combinable
-        UpdateMapWorld();
+        combinables = new();
         //combinables.AddRange(gameObject.GetComponentsInChildren<Combinable>());
         planeTransform = GameObject.Find("Ground").transform;/* reference to your plane transform */;
         websocket = FindObjectOfType<WebSocketManager>();
+        // go to all current enabled children and get their children nodes and check them for combinable
+        UpdateMapWorld();
         StartCoroutine(UpdateLobby());
     }
 
     public void UpdateMapWorld()
     {
         combinables.Clear();
-        foreach (Transform child in gameObject.transform)
+        var updateMinimap = "{'data':{'reset':true}}";
+        websocket.SendMessage(updateMinimap.Replace('\'', '"'));
+
+        foreach (Transform world in gameObject.transform)
         {
-            if (child.gameObject.activeInHierarchy)
+            if (world.gameObject.activeInHierarchy)
             {
-                combinables.AddRange(child.GetComponentsInChildren<Combinable>());
+                Combinable[] worldCombinables = world.GetComponentsInChildren<Combinable>(true);
+                combinables.AddRange(worldCombinables);
             }
         }
+
     }
+
 
     public void AddCombinable(Combinable combinable)
     {
