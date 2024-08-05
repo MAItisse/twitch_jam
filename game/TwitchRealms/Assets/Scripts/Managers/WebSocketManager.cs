@@ -20,9 +20,11 @@ public class WebSocketManager : MonoBehaviour
     private const int maxReconnectionAttempts = 5;
     private float reconnectionDelay = 2.0f;
     private static WebSocketManager instance;
+    private BubbleGenerator _bubbleGenerator;
 
     private void Awake()
     {
+        _bubbleGenerator = GameObject.FindObjectOfType<BubbleGenerator>();
         if (instance == null)
         {
             instance = this;
@@ -100,6 +102,13 @@ public class WebSocketManager : MonoBehaviour
     private void OnMessageReceived(object sender, MessageEventArgs e)
     {
         Debug.Log("Message received: " + e.Data);
+
+        try {
+            BubbleData data = JsonUtility.FromJson<BubbleData>(e.Data);
+            if (data.userId != null) {
+                _bubbleGenerator.SpawnBubble(data.bubbleColor, data.bubbleSize, new Vector2(data.x, data.y));
+            }
+        } catch(Exception err) {}
     }
 
     private void OnOpen(object sender, System.EventArgs e)
