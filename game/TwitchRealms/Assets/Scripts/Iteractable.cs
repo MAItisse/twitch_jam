@@ -10,13 +10,13 @@ public class Iteractable : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        var rigidBody = gameObject.AddComponent<Rigidbody>();
+        rigidBody.constraints = RigidbodyConstraints.FreezePosition;
         var collider = gameObject.AddComponent<BoxCollider>();
         var triggerRange = gameObject.AddComponent<SphereCollider>();
-        var rigidBody = gameObject.AddComponent<Rigidbody>();
         collider.center = collider.center + new Vector3(0, .5f, 0);
         triggerRange.radius = radius;
         triggerRange.isTrigger = true;
-
         websocket = GameObject.FindObjectOfType<WebSocketManager>();
     }
 
