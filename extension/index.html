@@ -230,6 +230,8 @@
     }
 
     function resetMinimap() {
+        let container = document.getElementById("minimap-container");
+        container.style.display = "";
         let units = Array.from(document.getElementsByClassName("unit"));
         for (const unit of units) {
             unit.remove();
@@ -244,6 +246,7 @@
 
       function connectWebSocket() {
         socket = new WebSocket(wsUrl);
+        resetMinimap();
 
         socket.addEventListener("open", function (event) {
           console.log("Connected to the WebSocket server");
