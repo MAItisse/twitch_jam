@@ -5,9 +5,12 @@ using UnityEngine;
 public class BossSpawner : MonoBehaviour
 {
     public GameObject boss;
+    public string bossName = "Bozz";
 
     private void Awake()
     {
-        Instantiate(boss, transform.position, Quaternion.identity, transform.parent);
+        var go = Instantiate(boss, transform.position + new Vector3(0, .5f, 0), Quaternion.identity, transform.parent);
+        var mapObject = go.AddComponent<MapObject>();
+        mapObject.cssClassName = bossName;
     }
 }

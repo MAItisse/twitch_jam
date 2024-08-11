@@ -22,9 +22,11 @@ public class WebSocketManager : MonoBehaviour
     private static WebSocketManager instance;
     private BubbleGenerator _bubbleGenerator;
 
+    private bool showClick = false;
+    private string _messageEventData;
+
     private void Awake()
     {
-        _bubbleGenerator = GameObject.FindObjectOfType<BubbleGenerator>();
         if (instance == null)
         {
             instance = this;
@@ -40,6 +42,7 @@ public class WebSocketManager : MonoBehaviour
     {
         // this is so we can keep the keepalive running while the service is not focused
         Application.runInBackground = true;
+        _bubbleGenerator = GameObject.FindObjectOfType<BubbleGenerator>();
     }
 
     private void Update()
@@ -51,11 +54,36 @@ public class WebSocketManager : MonoBehaviour
             StartCoroutine(ReconnectWithDelay());
         }
 
-        if (Input.GetKeyDown(KeyCode.E))
+        //if (Input.GetKeyDown(KeyCode.E))
+        //{
+        //    ws.Close();
+        //    Debug.Log("Closing ws");
+        //}
+        if (showClick)
         {
-            ws.Close();
-            Debug.Log("Closing ws");
+            try
+            {
+                BubbleData data = JsonUtility.FromJson<BubbleData>(_messageEventData);
+                if (data.userId != null)
+                {
+                    float t = 4.837778f * 4;
+                    _bubbleGenerator.SpawnBubble(data.bubbleColor, data.bubbleSize, new Vector2(Remap(data.x, 0, 1, -t, t), Remap(data.y, 0, 1, -t, t)));
+
+                    //GameObject go = Instantiate(GameObject.CreatePrimitive(PrimitiveType.Cube));
+                    //go.transform.position = new Vector3(data.x, 0, data.y);
+                }
+            }
+            catch (Exception ex)
+            {
+                showClick = false;
+            }
+            showClick = false;
         }
+    }
+
+    float Remap(float value, float fromMin, float fromMax, float toMin, float toMax)
+    {
+        return (value - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
     }
 
     IEnumerator CreateRoom()
@@ -102,13 +130,14 @@ public class WebSocketManager : MonoBehaviour
     private void OnMessageReceived(object sender, MessageEventArgs e)
     {
         Debug.Log("Message received: " + e.Data);
-
-        try {
-            BubbleData data = JsonUtility.FromJson<BubbleData>(e.Data);
-            if (data.userId != null) {
-                _bubbleGenerator.SpawnBubble(data.bubbleColor, data.bubbleSize, new Vector2(data.x, data.y));
-            }
-        } catch(Exception err) {}
+        //try {
+        showClick = true;
+        _messageEventData = e.Data;
+        //} 
+        //catch(Exception err) 
+        //{
+        //    Debug.Log(err);
+        //}
     }
 
     private void OnOpen(object sender, System.EventArgs e)

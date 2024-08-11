@@ -6,14 +6,14 @@ using UnityEngine;
 
 public class MapConnector : MonoBehaviour
 {
-    HashSet<Combinable> combinables;
+    HashSet<MapObject> mapObjects;
     Transform planeTransform;
     private WebSocketManager websocket;
     public Iteractable iteractable;
 
     void Start()
     {
-        combinables = new();
+        mapObjects = new();
         //combinables.AddRange(gameObject.GetComponentsInChildren<Combinable>());
         planeTransform = GameObject.Find("Ground").transform;/* reference to your plane transform */;
         websocket = FindObjectOfType<WebSocketManager>();
@@ -24,7 +24,7 @@ public class MapConnector : MonoBehaviour
 
     public void UpdateMapWorld()
     {
-        combinables.Clear();
+        mapObjects.Clear();
         var updateMinimap = "{'data':{'reset':true}}";
         websocket.SendMessage(updateMinimap.Replace('\'', '"'));
 
@@ -32,17 +32,17 @@ public class MapConnector : MonoBehaviour
         {
             if (world.gameObject.activeInHierarchy)
             {
-                Combinable[] worldCombinables = world.GetComponentsInChildren<Combinable>(true);
-                combinables.AddRange(worldCombinables);
+                MapObject[] worldCombinables = world.GetComponentsInChildren<MapObject>(true);
+                mapObjects.AddRange(worldCombinables);
             }
         }
 
     }
 
 
-    public void AddCombinable(Combinable combinable)
+    public void AddCombinable(MapObject mapObj)
     {
-        combinables.Add(combinable);
+        mapObjects.Add(mapObj);
     }
 
     private IEnumerator UpdateLobby()
@@ -58,36 +58,28 @@ public class MapConnector : MonoBehaviour
             yield return new WaitForSeconds(.1f);
 
             var coords = "{'data':[";
-            foreach (var combinable in combinables)
+            foreach (var mapObject in mapObjects)
             {
                 // Calculate the normalized coordinates on the plane
-                Vector3 objectWorldPos = combinable.transform.position;
+                Vector3 objectWorldPos = mapObject.transform.position;
                 float relativeX = Mathf.Clamp((objectWorldPos.x - planeMin.x) / (planeMax.x - planeMin.x), 0f, 1f);
                 float relativeZ = Mathf.Clamp((objectWorldPos.z - planeMin.z) / (planeMax.z - planeMin.z), 0f, 1f);
                 Vector2 normalizedCoords = new(relativeX, relativeZ);
-                var kind = combinable.name.Split(' ')[0].Replace("(Clone)", "");
-                if (combinable.gameObject.TryGetComponent<HeadMount>(out var headMount))
+                var kind = mapObject.name.Split(' ')[0].Replace("(Clone)", "");
+                if (mapObject.gameObject.TryGetComponent<HeadMount>(out var headMount))
                     kind = headMount.name;
+                if (mapObject.cssClassName != "") kind = mapObject.cssClassName;
                 // Send the normalized coordinates instead of raw positions
                 MiniMapObject miniMap = new()
                 {
-                    id = combinable.GetInstanceID(),
+                    id = mapObject.GetInstanceID(),
                     x = normalizedCoords.x,
                     y = normalizedCoords.y,
                     kind = kind
                 };
                 coords += JsonUtility.ToJson(miniMap) + ",";
             }
-            Vector2 loc = RelativeCoords(iteractable.transform.position, planeMin, planeMax);
-            MiniMapObject miniMapObject = new()
-            {
-                id = 123321,
-                x = loc.x,
-                y = loc.y,
-                kind = "Player"
-            };
-            coords += JsonUtility.ToJson(miniMapObject);
-            websocket.SendMessage(coords.Replace('\'', '"') + "]}");
+            websocket.SendMessage(coords[..^1].Replace('\'', '"') + "]}");
         }
     }
 
