@@ -190,6 +190,10 @@
             <input type="color" id="bubble-color" value="#00ff00" />
           </label>
           <label>
+            Use Random Color
+            <input type="checkbox" id="random-color" />
+          </label>
+          <label>
             Bubble Size:
             <input type="number" id="bubble-size" value="50" min="10" max="200" />
           </label>
@@ -272,7 +276,7 @@
         socket.addEventListener("open", function (event) {
           console.log("Connected to the WebSocket server");
           let container = document.getElementById("minimap-container");
-          container.style.display = "inital";
+          container.style.display = "initial";
           socket.send("Hello Server!");
         });
 
@@ -330,15 +334,31 @@
         });
 
       document
+        .getElementById("random-color")
+        .addEventListener("change", function () {
+          const colorPicker = document.getElementById("bubble-color");
+          colorPicker.disabled = this.checked;
+        });
+
+      document
         .getElementById("save-settings")
         .addEventListener("click", function () {
-          bubbleColor = document.getElementById("bubble-color").value;
+          const randomColorCheckbox = document.getElementById("random-color").checked;
+
+          if (randomColorCheckbox) {
+            bubbleColor = getRandomColor();
+          } else {
+            bubbleColor = document.getElementById("bubble-color").value;
+          }
+
           bubbleSize = parseInt(
             document.getElementById("bubble-size").value,
             10,
           );
           document.getElementById("settings-menu").style.display = "none";
+          
           const data = {
+            randomColor: randomColorCheckbox,
             bubbleColor: bubbleColor,
             bubbleSize: bubbleSize,
             userId: userId,
@@ -358,11 +378,16 @@
         const x = (event.clientX - rect.left) / rect.width;
         const y = (event.clientY - rect.top) / rect.height;
 
+        let finalColor = bubbleColor;
+        if (document.getElementById("random-color").checked) {
+          finalColor = getRandomColor();
+        }
+
         const data = {
           x: x,
           y: y,
           userId: userId,
-          bubbleColor: bubbleColor,
+          bubbleColor: finalColor,
           bubbleSize: bubbleSize
         };
         sendMessage(JSON.stringify(data));
@@ -373,13 +398,22 @@
         bubble.style.height = `${bubbleSize}px`;
         bubble.style.left = `${event.clientX - rect.left - bubbleSize / 2}px`;
         bubble.style.top = `${event.clientY - rect.top - bubbleSize / 2}px`;
-        bubble.style.background = `radial-gradient(circle, ${bubbleColor}80, ${bubbleColor}40)`;
+        bubble.style.background = `radial-gradient(circle, ${finalColor}80, ${finalColor}40)`;
         bubble.style.animation = `expand ${animationDuration}s forwards`;
         minimap.appendChild(bubble);
         bubble.addEventListener("animationend", () => {
           bubble.remove();
         });
       });
+    }
+
+    function getRandomColor() {
+      const letters = '0123456789ABCDEF';
+      let color = '#';
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
     }
 
     if (TESTING) {
