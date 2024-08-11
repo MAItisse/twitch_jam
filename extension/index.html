@@ -21,7 +21,7 @@
         width: 300px;
         height: 300px;
         position: absolute;
-        bottom: 0;
+        bottom: 50px;
         left: 0;
         background-color: #0000008a; /* Black background */
         color: #fff;
@@ -38,9 +38,12 @@
         pointer-events: none; /* Make bubbles not interactive */
       }
 
+      #settingsArea {
+        margin: 35px 50px;
+      }
+
       #settings-button, #reconnect-button {
         width: 33%;
-        margin: 5px 0;
         padding: 10px;
         background-color: #333;
         color: #fff;
@@ -165,18 +168,20 @@
     </style>
   </head>
   <body>
-      <button id="settings-button">Settings</button>
-      <button id="reconnect-button">Reconnect</button>
-      <div id="settings-menu">
-        <label>
-          Bubble Color:
-          <input type="color" id="bubble-color" value="#00ff00" />
-        </label>
-        <label>
-          Bubble Size:
-          <input type="number" id="bubble-size" value="50" min="10" max="200" />
-        </label>
-        <button id="save-settings">Save</button>
+      <div id="settingsArea">
+        <button id="settings-button">Settings</button>
+        <button id="reconnect-button">Reconnect</button>
+        <div id="settings-menu">
+          <label>
+            Bubble Color:
+            <input type="color" id="bubble-color" value="#00ff00" />
+          </label>
+          <label>
+            Bubble Size:
+            <input type="number" id="bubble-size" value="50" min="10" max="200" />
+          </label>
+          <button id="save-settings">Save</button>
+        </div>
       </div>
     <div id="minimap-container">
       <div id="units-container">
