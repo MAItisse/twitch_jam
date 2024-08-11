@@ -66,7 +66,7 @@ public class WebSocketManager : MonoBehaviour
                 BubbleData data = JsonUtility.FromJson<BubbleData>(_messageEventData);
                 if (data.userId != null)
                 {
-                    float t = 5 * 4;
+                    float t = 5 * 5;
                     _bubbleGenerator.SpawnBubble(data.bubbleColor, data.bubbleSize, new Vector2(Remap(data.x, 0, 1, -t, t), Remap(data.y, 0, 1, -t, t)));
 
                     //GameObject go = Instantiate(GameObject.CreatePrimitive(PrimitiveType.Cube));
