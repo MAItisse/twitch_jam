@@ -14,7 +14,9 @@ public class WebSocketManager : MonoBehaviour
     string url = "https://websocket.matissetec.dev/lobby/new?user=";
     private WebSocket ws;
     private bool isRunning = false;
+    [SerializeField]
     private float keepAliveInterval = 30.0f; // Increased keep-alive frequency
+    [SerializeField]
     int channelId = 0;
     private int reconnectionAttempts = 0;
     private const int maxReconnectionAttempts = 5;
@@ -59,6 +61,7 @@ public class WebSocketManager : MonoBehaviour
         //    ws.Close();
         //    Debug.Log("Closing ws");
         //}
+
         if (showClick)
         {
             try

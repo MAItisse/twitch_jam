@@ -28,7 +28,7 @@ public class Iteractable : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log(other.gameObject.name);
+        //Debug.Log(other.gameObject.name);
         websocket.SendMessage($"following {other.gameObject.name}");
         // combine 
 
