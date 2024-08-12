@@ -77,17 +77,6 @@
         width: 50%;
       }
 
-      @keyframes expand {
-        from {
-          scale: 0.1;
-          opacity: 0.5;
-        }
-        to {
-          scale: 2;
-          opacity: 0;
-        }
-      }
-
       #units-container, #background, #background-animation {
           width: 100%;
           height: 100%;
@@ -127,42 +116,6 @@
           border: white solid 0.5px;
       }
 
-      .Sphere {
-          background-color: rgb(186, 125, 12);
-          border-radius: var(--size);
-      }
-      .Cube {
-          background-color: rgb(101, 122, 9);
-      }
-      .Player {
-          --size: 40px;
-          opacity: 0.3;
-          background-color: blue;
-          border-radius: var(--size);
-      }
-      .Suzanne {
-          background-color: rgb(21, 142, 0);
-      }
-      .Bozz {
-            background-color: rgb(255, 0, 0);
-      }
-      .Door {
-            background-color: rgb(3, 108, 174);
-            animation: shimmer 2s infinite;
-      }
-
-      @keyframes shimmer {
-        0% {
-          background-color: rgb(170, 220, 170);
-        }
-        50% {
-          background-color: rgb(0, 209, 224);
-        }
-        100% {
-          background-color: rgb(193, 220, 170);
-        }
-      }
-
       .unit_enter_bubble {
           position: absolute;
 
@@ -177,6 +130,17 @@
 
           background-color: rgb(170, 220, 170);
           animation: expand 2s linear;
+      }
+
+      @keyframes expand {
+        from {
+          scale: 0.1;
+          opacity: 0.5;
+        }
+        to {
+          scale: 2;
+          opacity: 0;
+        }
       }
     </style>
   </head>
@@ -350,7 +314,7 @@
           } else {
             bubbleColor = document.getElementById("bubble-color").value;
           }
-
+          
           bubbleSize = parseInt(
             document.getElementById("bubble-size").value,
             10,
@@ -415,6 +379,92 @@
       }
       return color;
     }
+
+    // Function to apply dynamic styles from JSON
+    function applyStylesFromJson(styles) {
+      const styleElement = document.createElement("style");
+      let cssText = "";
+
+      for (const selector in styles) {
+        if (styles.hasOwnProperty(selector)) {
+          if (selector.startsWith("@keyframes")) {
+            // Handling keyframes
+            cssText += `${selector} {`;
+            const keyframes = styles[selector];
+            for (const keyframe in keyframes) {
+              if (keyframes.hasOwnProperty(keyframe)) {
+                cssText += `${keyframe} {`;
+                const properties = keyframes[keyframe];
+                for (const property in properties) {
+                  if (properties.hasOwnProperty(property)) {
+                    cssText += `${property}: ${properties[property]}; `;
+                  }
+                }
+                cssText += `} `;
+              }
+            }
+            cssText += `} `;
+          } else {
+            // Handling regular CSS rules
+            cssText += `${selector} {`;
+            const properties = styles[selector];
+            for (const property in properties) {
+              if (properties.hasOwnProperty(property)) {
+                cssText += `${property}: ${properties[property]}; `;
+              }
+            }
+            cssText += `} `;
+          }
+        }
+      }
+
+      styleElement.textContent = cssText;
+      document.head.appendChild(styleElement);
+    }
+
+    // Example JSON data to dynamically apply
+    const dynamicStyles = {
+      ".Sphere": {
+          "background-color": "rgb(186, 125, 200);",
+          "border-radius": "var(--size);"
+      },
+      ".Cube": {
+          "background-color": "rgb(101, 122, 9);"
+      },
+      ".Player": {
+          "--size": "40px;",
+          "opacity": "0.3;",
+          "background-color": "blue;",
+          "border-radius": "var(--size);"
+      },
+      ".Suzanne": {
+          "background-color": "rgb(21, 142, 0);"
+      },
+      ".Bozz": {
+            "background-color": "rgb(255, 0, 0);"
+      },
+      ".Door": {
+            "background-color": "rgb(3, 108, 174);",
+            "animation": "shimmer 2s infinite;"
+      },
+
+      "@keyframes shimmer": {
+        "0%": {
+          "background-color": "rgb(170, 220, 170);"
+        },
+        "50%": {
+          "background-color": "rgb(0, 209, 224);"
+        },
+        "100%": {
+          "background-color": "rgb(193, 220, 170);"
+        }
+      }
+    };
+
+    // Apply the styles on page load
+    window.addEventListener('DOMContentLoaded', (event) => {
+      applyStylesFromJson(dynamicStyles);
+    });
 
     if (TESTING) {
       runGameJam(TestAuth);
