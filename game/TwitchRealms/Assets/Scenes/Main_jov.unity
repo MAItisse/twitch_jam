@@ -4047,7 +4047,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cssClassName: Door
   mapColor: {r: 1, g: 1, b: 1, a: 1}
-  extraCss: 
+  extraCss: '"animation": "shimmer 2s infinite;"'
 --- !u!114 &1593736897
 MonoBehaviour:
   m_ObjectHideFlags: 0
