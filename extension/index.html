@@ -181,7 +181,7 @@
     const TESTING = window.location.hostname == "localhost";
 
     function updateMinimap(data) {
-        console.log("Updating minimap");
+        // console.log("Updating minimap");
         let container = document.getElementById("units-container");
         for (const unit of data) {
             let node = document.getElementById(unit.id);
@@ -219,157 +219,177 @@
     }
 
     function resetMinimap() {
-        let container = document.getElementById("minimap-container");
-        container.style.display = "";
         let units = Array.from(document.getElementsByClassName("unit"));
+        if (units.length !== 0) {
+            let container = document.getElementById("minimap-container");
+            container.style.display = "";
+        }
         for (const unit of units) {
             unit.remove();
         }
     }
 
     function runGameJam(auth) {
-      let wsUrl =
-        "wss://websocket.matissetec.dev/lobby/connect?user=" + auth.channelId;
-      let socket;
-      const userId = auth.userId;
+  let wsUrl =
+    "wss://websocket.matissetec.dev/lobby/connect?user=" + auth.channelId;
+  let socket;
+  const userId = auth.userId;
+  let reconnectInterval = null; // To store the interval ID for reconnection attempts
 
-      function connectWebSocket() {
-        socket = new WebSocket(wsUrl);
+  function connectWebSocket() {
+    socket = new WebSocket(wsUrl);
+    resetMinimap();
+
+    socket.addEventListener("open", function (event) {
+      console.log("Connected to the WebSocket server");
+      let container = document.getElementById("minimap-container");
+      container.style.display = "initial";
+      socket.send("Hello Server!");
+      if (reconnectInterval) {
+        clearInterval(reconnectInterval); // Clear the reconnect interval on successful connection
+        reconnectInterval = null;
+      }
+    });
+
+    socket.addEventListener("message", function (event) {
+      let data = JSON.parse(event.data);
+      if (data.data.hasOwnProperty("css")) {
+        // console.log("Applying dynamic styles " + data.data.css);
+        applyStylesFromJson(data.data.css);
+      }
+      
+      if (data.data.hasOwnProperty("reset")) {
+        console.log("Resetting minimap");
         resetMinimap();
-
-        socket.addEventListener("open", function (event) {
-          console.log("Connected to the WebSocket server");
-          let container = document.getElementById("minimap-container");
-          container.style.display = "initial";
-          socket.send("Hello Server!");
-        });
-
-        socket.addEventListener("message", function (event) {
-          <!-- console.log("Message from server:", event.data); -->
-          let data = JSON.parse(event.data);
-          if (data.data.hasOwnProperty("reset")) {
-            console.log("Resetting minimap");
-            resetMinimap();
-          }
-          updateMinimap(data.data);
-        });
-
-        socket.addEventListener("close", function (event) {
-          console.log("Disconnected from the WebSocket server");
-        });
-
-        socket.addEventListener("error", function (event) {
-          let container = document.getElementById("minimap-container");
-          container.style.display = "none";
-          console.error("WebSocket error:", event);
-        });
       }
-
-      connectWebSocket();
-
-      let animationDuration = 3; // Default duration in seconds
-      let bubbleColor = "#00ff00";
-      let bubbleSize = 50;
-
-      function sendMessage(message) {
-        if (socket.readyState === WebSocket.OPEN) {
-          socket.send(message);
-        } else {
-          console.error(
-            "WebSocket is not open. Ready state:",
-            socket.readyState,
-          );
-        }
+      if (Array.isArray(data.data)) {
+        updateMinimap(data.data);
       }
+    });
 
-      window.Twitch.ext.onContext(function (context) {
-        animationDuration = Math.max(
-          1,
-          Math.min(10, context.hlsLatencyBroadcaster),
-        );
-      });
-
-      document
-        .getElementById("settings-button")
-        .addEventListener("click", function () {
-          const settingsMenu = document.getElementById("settings-menu");
-          settingsMenu.style.display =
-            settingsMenu.style.display === "none" ? "block" : "none";
-        });
-
-      document
-        .getElementById("random-color")
-        .addEventListener("change", function () {
-          const colorPicker = document.getElementById("bubble-color");
-          colorPicker.disabled = this.checked;
-        });
-
-      document
-        .getElementById("save-settings")
-        .addEventListener("click", function () {
-          const randomColorCheckbox = document.getElementById("random-color").checked;
-
-          if (randomColorCheckbox) {
-            bubbleColor = getRandomColor();
-          } else {
-            bubbleColor = document.getElementById("bubble-color").value;
-          }
-          
-          bubbleSize = parseInt(
-            document.getElementById("bubble-size").value,
-            10,
-          );
-          document.getElementById("settings-menu").style.display = "none";
-          
-          const data = {
-            randomColor: randomColorCheckbox,
-            bubbleColor: bubbleColor,
-            bubbleSize: bubbleSize,
-            userId: userId,
-          };
-          sendMessage(JSON.stringify(data));
-        });
-
-      document
-        .getElementById("reconnect-button")
-        .addEventListener("click", function () {
+    socket.addEventListener("close", function (event) {
+      console.log("Disconnected from the WebSocket server");
+      // Attempt to reconnect every 10 seconds
+      if (!reconnectInterval) {
+        reconnectInterval = setInterval(() => {
+          console.log("Attempting to reconnect...");
           connectWebSocket();
-        });
+        }, 10000);
+      }
+    });
 
-      document.getElementById("minimap-container").addEventListener("click", function (event) {
-        const minimap = document.getElementById("minimap-container");
-        const rect = minimap.getBoundingClientRect();
-        const x = (event.clientX - rect.left) / rect.width;
-        const y = (event.clientY - rect.top) / rect.height;
+    socket.addEventListener("error", function (event) {
+      let container = document.getElementById("minimap-container");
+      container.style.display = "none";
+      console.error("WebSocket error:", event);
+    });
+  }
 
-        let finalColor = bubbleColor;
-        if (document.getElementById("random-color").checked) {
-          finalColor = getRandomColor();
-        }
+  connectWebSocket();
 
-        const data = {
-          x: x,
-          y: y,
-          userId: userId,
-          bubbleColor: finalColor,
-          bubbleSize: bubbleSize
-        };
-        sendMessage(JSON.stringify(data));
+  let animationDuration = 3; // Default duration in seconds
+  let bubbleColor = "#00ff00";
+  let bubbleSize = 50;
 
-        const bubble = document.createElement("div");
-        bubble.classList.add("bubble");
-        bubble.style.width = `${bubbleSize}px`;
-        bubble.style.height = `${bubbleSize}px`;
-        bubble.style.left = `${event.clientX - rect.left - bubbleSize / 2}px`;
-        bubble.style.top = `${event.clientY - rect.top - bubbleSize / 2}px`;
-        bubble.style.background = `radial-gradient(circle, ${finalColor}80, ${finalColor}40)`;
-        bubble.style.animation = `expand ${animationDuration}s forwards`;
-        minimap.appendChild(bubble);
-        bubble.addEventListener("animationend", () => {
-          bubble.remove();
-        });
-      });
+  function sendMessage(message) {
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(message);
+    } else {
+      console.error(
+        "WebSocket is not open. Ready state:",
+        socket.readyState,
+      );
     }
+  }
+
+  window.Twitch.ext.onContext(function (context) {
+    animationDuration = Math.max(
+      1,
+      Math.min(10, context.hlsLatencyBroadcaster),
+    );
+  });
+
+  document
+    .getElementById("settings-button")
+    .addEventListener("click", function () {
+      const settingsMenu = document.getElementById("settings-menu");
+      settingsMenu.style.display =
+        settingsMenu.style.display === "none" ? "block" : "none";
+    });
+
+  document
+    .getElementById("random-color")
+    .addEventListener("change", function () {
+      const colorPicker = document.getElementById("bubble-color");
+      colorPicker.disabled = this.checked;
+    });
+
+  document
+    .getElementById("save-settings")
+    .addEventListener("click", function () {
+      const randomColorCheckbox = document.getElementById("random-color").checked;
+
+      if (randomColorCheckbox) {
+        bubbleColor = getRandomColor();
+      } else {
+        bubbleColor = document.getElementById("bubble-color").value;
+      }
+      
+      bubbleSize = parseInt(
+        document.getElementById("bubble-size").value,
+        10,
+      );
+      document.getElementById("settings-menu").style.display = "none";
+      
+      const data = {
+        randomColor: randomColorCheckbox,
+        bubbleColor: bubbleColor,
+        bubbleSize: bubbleSize,
+        userId: userId,
+      };
+      sendMessage(JSON.stringify(data));
+    });
+
+  document
+    .getElementById("reconnect-button")
+    .addEventListener("click", function () {
+      connectWebSocket();
+    });
+
+  document.getElementById("minimap-container").addEventListener("click", function (event) {
+    const minimap = document.getElementById("minimap-container");
+    const rect = minimap.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
+
+    let finalColor = bubbleColor;
+    if (document.getElementById("random-color").checked) {
+      finalColor = getRandomColor();
+    }
+
+    const data = {
+      x: x,
+      y: y,
+      userId: userId,
+      bubbleColor: finalColor,
+      bubbleSize: bubbleSize
+    };
+    sendMessage(JSON.stringify(data));
+
+    const bubble = document.createElement("div");
+    bubble.classList.add("bubble");
+    bubble.style.width = `${bubbleSize}px`;
+    bubble.style.height = `${bubbleSize}px`;
+    bubble.style.left = `${event.clientX - rect.left - bubbleSize / 2}px`;
+    bubble.style.top = `${event.clientY - rect.top - bubbleSize / 2}px`;
+    bubble.style.background = `radial-gradient(circle, ${finalColor}80, ${finalColor}40)`;
+    bubble.style.animation = `expand ${animationDuration}s forwards`;
+    minimap.appendChild(bubble);
+    bubble.addEventListener("animationend", () => {
+      bubble.remove();
+    });
+  });
+}
 
     function getRandomColor() {
       const letters = '0123456789ABCDEF';
@@ -382,89 +402,53 @@
 
     // Function to apply dynamic styles from JSON
     function applyStylesFromJson(styles) {
-      const styleElement = document.createElement("style");
+      // Check if a style element with a specific ID exists
+      let styleElement = document.getElementById("dynamic-styles");
+
+      // If the style element doesn't exist, create it
+      if (!styleElement) {
+          styleElement = document.createElement("style");
+          styleElement.id = "dynamic-styles";
+          document.head.appendChild(styleElement);
+      }
+
       let cssText = "";
 
       for (const selector in styles) {
-        if (styles.hasOwnProperty(selector)) {
-          if (selector.startsWith("@keyframes")) {
-            // Handling keyframes
-            cssText += `${selector} {`;
-            const keyframes = styles[selector];
-            for (const keyframe in keyframes) {
-              if (keyframes.hasOwnProperty(keyframe)) {
-                cssText += `${keyframe} {`;
-                const properties = keyframes[keyframe];
-                for (const property in properties) {
-                  if (properties.hasOwnProperty(property)) {
-                    cssText += `${property}: ${properties[property]}; `;
+          if (styles.hasOwnProperty(selector)) {
+              if (selector.startsWith("@keyframes")) {
+                  // Handling keyframes
+                  cssText += `${selector} {`;
+                  const keyframes = styles[selector];
+                  for (const keyframe in keyframes) {
+                      if (keyframes.hasOwnProperty(keyframe)) {
+                          cssText += `${keyframe} {`;
+                          const properties = keyframes[keyframe];
+                          for (const property in properties) {
+                              if (properties.hasOwnProperty(property)) {
+                                  cssText += `${property}: ${properties[property]}; `;
+                              }
+                          }
+                          cssText += `} `;
+                      }
                   }
-                }
-                cssText += `} `;
+                  cssText += `} `;
+              } else {
+                  // Handling regular CSS rules
+                  cssText += `${selector} {`;
+                  const properties = styles[selector];
+                  for (const property in properties) {
+                      if (properties.hasOwnProperty(property)) {
+                          cssText += `${property}: ${properties[property]}; `;
+                      }
+                  }
+                  cssText += `} `;
               }
-            }
-            cssText += `} `;
-          } else {
-            // Handling regular CSS rules
-            cssText += `${selector} {`;
-            const properties = styles[selector];
-            for (const property in properties) {
-              if (properties.hasOwnProperty(property)) {
-                cssText += `${property}: ${properties[property]}; `;
-              }
-            }
-            cssText += `} `;
           }
-        }
       }
-
+      // Replace the content of the style element with the new CSS
       styleElement.textContent = cssText;
-      document.head.appendChild(styleElement);
     }
-
-    // Example JSON data to dynamically apply
-    const dynamicStyles = {
-      ".Sphere": {
-          "background-color": "rgb(186, 125, 200);",
-          "border-radius": "var(--size);"
-      },
-      ".Cube": {
-          "background-color": "rgb(101, 122, 9);"
-      },
-      ".Player": {
-          "--size": "40px;",
-          "opacity": "0.3;",
-          "background-color": "blue;",
-          "border-radius": "var(--size);"
-      },
-      ".Suzanne": {
-          "background-color": "rgb(21, 142, 0);"
-      },
-      ".Bozz": {
-            "background-color": "rgb(255, 0, 0);"
-      },
-      ".Door": {
-            "background-color": "rgb(3, 108, 174);",
-            "animation": "shimmer 2s infinite;"
-      },
-
-      "@keyframes shimmer": {
-        "0%": {
-          "background-color": "rgb(170, 220, 170);"
-        },
-        "50%": {
-          "background-color": "rgb(0, 209, 224);"
-        },
-        "100%": {
-          "background-color": "rgb(193, 220, 170);"
-        }
-      }
-    };
-
-    // Apply the styles on page load
-    window.addEventListener('DOMContentLoaded', (event) => {
-      applyStylesFromJson(dynamicStyles);
-    });
 
     if (TESTING) {
       runGameJam(TestAuth);
