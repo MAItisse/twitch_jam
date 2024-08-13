@@ -50,13 +50,13 @@ public class MapConnector : MonoBehaviour
         Vector3 planeMin = planeCenter - new Vector3(planeSizeX / 2f, 0f, planeSizeZ / 2f);
         Vector3 planeMax = planeCenter + new Vector3(planeSizeX / 2f, 0f, planeSizeZ / 2f);
 
-        StringBuilder stylesBuilder = new StringBuilder();
+        StringBuilder stylesBuilder = new();
 
         while (websocket != null)
         {
             yield return new WaitForSeconds(0.1f);
 
-            List<MiniMapObject> miniMapObjects = new List<MiniMapObject>();
+            List<MiniMapObject> miniMapObjects = new();
             stylesBuilder.Clear();
             stylesBuilder.Append("{");
             stylesBuilder.Append("\"data\":{");

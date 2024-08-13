@@ -143,7 +143,11 @@ public class WebSocketManager : MonoBehaviour
         if (reconnectionAttempts < maxReconnectionAttempts)
         {
             reconnectionAttempts++;
-            StartCoroutine(ReconnectWithDelay());
+            if (this.gameObject.activeInHierarchy)
+                StartCoroutine(ReconnectWithDelay());
+            else
+                Debug.Log("Program ended, stopping heartbeat");
+
             isRunning = true;
         }
         else
