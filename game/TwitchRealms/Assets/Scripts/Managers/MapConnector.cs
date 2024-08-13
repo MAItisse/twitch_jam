@@ -10,13 +10,11 @@ public class MapConnector : MonoBehaviour
     HashSet<MapObject> mapObjects;
     Transform planeTransform;
     private WebSocketManager websocket;
-    public Iteractable iteractable;
-    public Color SphereColor, CubeColor, PlayerColor, SuzanneColor, BozzColor, DoorColor, ShimmerStartColor, ShimmerMidColor, ShimmerEndColor;
 
     void Start()
     {
-        mapObjects = new();
-        planeTransform = GameObject.Find("Ground").transform; /* reference to your plane transform */
+        mapObjects = new HashSet<MapObject>();
+        planeTransform = GameObject.Find("Ground").transform; // Reference to your plane transform
         websocket = FindObjectOfType<WebSocketManager>();
         UpdateMapWorld();
         StartCoroutine(UpdateLobby());
@@ -25,8 +23,8 @@ public class MapConnector : MonoBehaviour
     public void UpdateMapWorld()
     {
         mapObjects.Clear();
-        var updateMinimap = "{'data':{'reset':true}}";
-        websocket.SendWsMessage(updateMinimap.Replace('\'', '"'));
+        var updateMinimap = "{\"data\":{\"reset\":true}}";
+        websocket.SendWsMessage(updateMinimap);
 
         foreach (Transform world in gameObject.transform)
         {
@@ -52,21 +50,27 @@ public class MapConnector : MonoBehaviour
         Vector3 planeMin = planeCenter - new Vector3(planeSizeX / 2f, 0f, planeSizeZ / 2f);
         Vector3 planeMax = planeCenter + new Vector3(planeSizeX / 2f, 0f, planeSizeZ / 2f);
 
+        StringBuilder stylesBuilder = new StringBuilder();
+
         while (websocket != null)
         {
-            yield return new WaitForSeconds(.1f);
+            yield return new WaitForSeconds(0.1f);
 
-            List<MiniMapObject> miniMapObjects = new();
+            List<MiniMapObject> miniMapObjects = new List<MiniMapObject>();
+            stylesBuilder.Clear();
+            stylesBuilder.Append("{");
+            stylesBuilder.Append("\"data\":{");
+            stylesBuilder.Append("\"css\":{");
 
             foreach (var mapObject in mapObjects)
             {
-                Vector3 objectWorldPos = mapObject.transform.position;
-                float relativeX = Mathf.Clamp((objectWorldPos.x - planeMin.x) / (planeMax.x - planeMin.x), 0f, 1f);
-                float relativeZ = Mathf.Clamp((objectWorldPos.z - planeMin.z) / (planeMax.z - planeMin.z), 0f, 1f);
-                Vector2 normalizedCoords = new(relativeX, relativeZ);
-                var kind = mapObject.name.Split(' ')[0].Replace("(Clone)", "");
-                if (mapObject.cssClassName != "") kind = mapObject.cssClassName;
-                MiniMapObject miniMap = new() {
+                Vector2 normalizedCoords = RelativeCoords(mapObject.transform.position, planeMin, planeMax);
+                string kind = string.IsNullOrEmpty(mapObject.cssClassName)
+                    ? mapObject.name.Split(' ')[0].Replace("(Clone)", "")
+                    : mapObject.cssClassName;
+
+                MiniMapObject miniMap = new MiniMapObject
+                {
                     id = mapObject.GetInstanceID(),
                     x = normalizedCoords.x,
                     y = normalizedCoords.y,
@@ -74,70 +78,41 @@ public class MapConnector : MonoBehaviour
                 };
 
                 miniMapObjects.Add(miniMap);
+
+                // Handle color and extra CSS
+
+                stylesBuilder.Append($"\".{kind}\":{{");
+                stylesBuilder.Append($"\"background-color\":\"{ColorToRgbString(mapObject.mapColor)}\"");
+
+                string extraCss = mapObject.extraCss;
+                if (!string.IsNullOrEmpty(extraCss))
+                {
+                    stylesBuilder.Append($", {extraCss.Trim()}");
+                }
+
+                stylesBuilder.Append("},");
             }
 
+            // Add global keyframes animation
+            stylesBuilder.Append("\"@keyframes shimmer\":{");
+            stylesBuilder.Append("\"0%\":{\"background-color\":\"rgb(170, 220, 170)\"},");
+            stylesBuilder.Append("\"50%\":{\"background-color\":\"rgb(0, 209, 224)\"},");
+            stylesBuilder.Append("\"100%\":{\"background-color\":\"rgb(193, 220, 170)\"}");
+            stylesBuilder.Append("}");
+
+            stylesBuilder.Append("}"); // Close css
+            stylesBuilder.Append("}"); // Close data
+            stylesBuilder.Append("}"); // Close root
+
+            string styles = stylesBuilder.ToString();
             string jsonData = JsonUtility.ToJson(new MiniMapObjectCollection { data = miniMapObjects });
-            websocket.SendWsMessage(jsonData.Replace('\'', '"'));
 
-            string stylesTemplate = @"{
-                ""data"":{
-                    ""css"": {
-                        "".Sphere"": {
-                            ""background-color"": ""{SphereColor};"",
-                            ""border-radius"": ""var(--size);""
-                        },
-                        "".Cube"": {
-                            ""background-color"": ""{CubeColor};""
-                        },
-                        "".Player"": {
-                            ""--size"": ""40px;"",
-                            ""opacity"": ""0.3;"",
-                            ""background-color"": ""{PlayerColor};"",
-                            ""border-radius"": ""var(--size);""
-                        },
-                        "".Suzanne"": {
-                            ""background-color"": ""{SuzanneColor};""
-                        },
-                        "".Bozz"": {
-                            ""background-color"": ""{BozzColor};""
-                        },
-                        "".Door"": {
-                            ""background-color"": ""{DoorColor};"",
-                            ""animation"": ""shimmer 2s infinite;""
-                        },
-                        ""@keyframes shimmer"": {
-                            ""0%"": {
-                                ""background-color"": ""{ShimmerStartColor};""
-                            },
-                            ""50%"": {
-                                ""background-color"": ""{ShimmerMidColor};""
-                            },
-                            ""100%"": {
-                                ""background-color"": ""{ShimmerEndColor};""
-                            }
-                        }
-                    }
-                }
-            }";
-            
-
-            string styles = stylesTemplate
-                .Replace("{SphereColor}", ColorToRgbString(SphereColor))
-                .Replace("{CubeColor}", ColorToRgbString(CubeColor))
-                .Replace("{PlayerColor}", ColorToRgbString(PlayerColor))
-                .Replace("{SuzanneColor}", ColorToRgbString(SuzanneColor))
-                .Replace("{BozzColor}", ColorToRgbString(BozzColor))
-                .Replace("{DoorColor}", ColorToRgbString(DoorColor))
-                .Replace("{ShimmerStartColor}", ColorToRgbString(ShimmerStartColor))
-                .Replace("{ShimmerMidColor}", ColorToRgbString(ShimmerMidColor))
-                .Replace("{ShimmerEndColor}", ColorToRgbString(ShimmerEndColor));
-
-            // Now 'styles' contains your JSON string with the dynamic color values.
-
-
+            // Send both JSON data and styles via WebSocket
+            websocket.SendWsMessage(jsonData);
             websocket.SendWsMessage(styles);
         }
     }
+
     string ColorToRgbString(Color color)
     {
         int r = Mathf.RoundToInt(color.r * 255);
@@ -148,8 +123,10 @@ public class MapConnector : MonoBehaviour
 
     private Vector2 RelativeCoords(Vector3 objectWorldPos, Vector3 planeMin, Vector3 planeMax)
     {
-        return new Vector2(Mathf.Clamp((objectWorldPos.x - planeMin.x) / (planeMax.x - planeMin.x), 0f, 1f),
-            Mathf.Clamp((objectWorldPos.z - planeMin.z) / (planeMax.z - planeMin.z), 0f, 1f));
+        return new Vector2(
+            Mathf.Clamp((objectWorldPos.x - planeMin.x) / (planeMax.x - planeMin.x), 0f, 1f),
+            Mathf.Clamp((objectWorldPos.z - planeMin.z) / (planeMax.z - planeMin.z), 0f, 1f)
+        );
     }
 }
 

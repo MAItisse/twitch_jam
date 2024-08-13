@@ -38,6 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -191,6 +192,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: mapColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: mapColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: mapColor.r
+      value: 0.32182944
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -309,6 +325,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: mapColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: mapColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: mapColor.r
+      value: 0.32182944
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -666,12 +697,12 @@ MonoBehaviour:
   m_RequiresColorTexture: 0
   m_Version: 2
   m_TaaSettings:
-    m_Quality: 3
-    m_FrameInfluence: 0.1
-    m_JitterScale: 1
-    m_MipBias: 0
-    m_VarianceClampScale: 0.9
-    m_ContrastAdaptiveSharpening: 0
+    quality: 3
+    frameInfluence: 0.1
+    jitterScale: 1
+    mipBias: 0
+    varianceClampScale: 0.9
+    contrastAdaptiveSharpening: 0
 --- !u!114 &330585548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1006,6 +1037,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: extraCss
+      value: '"border-radius": "var(--size);"'
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: mapColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: mapColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: mapColor.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7247457265671267121, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
       propertyPath: m_Name
@@ -1207,6 +1258,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: extraCss
+      value: '"border-radius": "var(--size);"'
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: mapColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: mapColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: mapColor.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7247457265671267121, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
       propertyPath: m_Name
@@ -1225,6 +1296,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1851388792}
     m_Modifications:
+    - target: {fileID: 785909458794649632, guid: 959f00ee0fb4c9f4d846734eda68ba8a,
+        type: 3}
+      propertyPath: mapColor.b
+      value: 0.5637416
+      objectReference: {fileID: 0}
+    - target: {fileID: 785909458794649632, guid: 959f00ee0fb4c9f4d846734eda68ba8a,
+        type: 3}
+      propertyPath: mapColor.g
+      value: 0.048460312
+      objectReference: {fileID: 0}
+    - target: {fileID: 785909458794649632, guid: 959f00ee0fb4c9f4d846734eda68ba8a,
+        type: 3}
+      propertyPath: mapColor.r
+      value: 0.9339623
+      objectReference: {fileID: 0}
     - target: {fileID: 785909458794649632, guid: 959f00ee0fb4c9f4d846734eda68ba8a,
         type: 3}
       propertyPath: cssClassName
@@ -1525,6 +1611,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cssClassName: Player
+  mapColor: {r: 0, g: 0.2166667, b: 1, a: 1}
+  extraCss: '"--size": "40px;",           "opacity": "0.3;",           "background-color":
+    "blue;",           "border-radius": "var(--size);"'
 --- !u!1 &558313769
 GameObject:
   m_ObjectHideFlags: 0
@@ -1980,7 +2069,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca5daa9c5aa451745adf0f5b18acdad2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  iteractable: {fileID: 557375728}
 --- !u!4 &629680930
 Transform:
   m_ObjectHideFlags: 0
@@ -3589,6 +3677,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cssClassName: Door
+  mapColor: {r: 1, g: 1, b: 1, a: 1}
+  extraCss: 
 --- !u!114 &1593736897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3945,6 +4035,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: mapColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: mapColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: mapColor.r
+      value: 0.32182944
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3987,6 +4092,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cssClassName: Door
+  mapColor: {r: 1, g: 1, b: 1, a: 1}
+  extraCss: '"animation": "shimmer 2s infinite;"'
 --- !u!114 &1668068343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4148,6 +4255,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: extraCss
+      value: '"border-radius": "var(--size);"'
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: mapColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: mapColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: mapColor.r
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7247457265671267121, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
@@ -4457,6 +4584,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: extraCss
+      value: '"border-radius": "var(--size);"'
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: mapColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: mapColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: mapColor.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7247457265671267121, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
       propertyPath: m_Name
@@ -4681,6 +4828,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: mapColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: mapColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: mapColor.r
+      value: 0.32182944
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5078,6 +5240,26 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
+      propertyPath: extraCss
+      value: '"border-radius": "var(--size);"'
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: mapColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: mapColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: mapColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
       propertyPath: cssClassName
       value: Sphere
       objectReference: {fileID: 0}
@@ -5153,6 +5335,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: mapColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: mapColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: mapColor.r
+      value: 0.32182944
       objectReference: {fileID: 0}
     - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
         type: 3}

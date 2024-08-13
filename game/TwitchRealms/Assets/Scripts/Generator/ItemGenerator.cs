@@ -12,10 +12,10 @@ public class ItemGenerator : MonoBehaviour
         connector = GameObject.FindObjectOfType<MapConnector>();
     }
 
-    public void GenerateGameObject(GameObject mapObject)
+    public void GenerateGameObject(GameObject combinable)
     {
         Vector3 spawnPosition = transform.position + new Vector3(Random.Range(-range, range), 0.5f, Random.Range(-range, range));
-        GameObject go = Instantiate(mapObject, spawnPosition, Quaternion.identity, transform.parent);
+        GameObject go = Instantiate(combinable, spawnPosition, Quaternion.identity, transform.parent);
         connector.AddCombinable(go.GetComponent<MapObject>());
     }
 
