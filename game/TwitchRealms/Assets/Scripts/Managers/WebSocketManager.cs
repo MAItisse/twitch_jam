@@ -56,12 +56,6 @@ public class WebSocketManager : MonoBehaviour
             StartCoroutine(ReconnectWithDelay());
         }
 
-        //if (Input.GetKeyDown(KeyCode.E))
-        //{
-        //    ws.Close();
-        //    Debug.Log("Closing ws");
-        //}
-
         if (showClick)
         {
             try
@@ -133,14 +127,8 @@ public class WebSocketManager : MonoBehaviour
     private void OnMessageReceived(object sender, MessageEventArgs e)
     {
         Debug.Log("Message received: " + e.Data);
-        //try {
         showClick = true;
         _messageEventData = e.Data;
-        //} 
-        //catch(Exception err) 
-        //{
-        //    Debug.Log(err);
-        //}
     }
 
     private void OnOpen(object sender, System.EventArgs e)
@@ -170,7 +158,7 @@ public class WebSocketManager : MonoBehaviour
         StartCoroutine(ReconnectWithDelay());
     }
 
-    public void SendMessage(string message)
+    public void SendWsMessage(string message)
     {
         if (ws != null && ws.IsAlive)
         {

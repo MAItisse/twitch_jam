@@ -11,6 +11,7 @@ public class MapConnector : MonoBehaviour
     Transform planeTransform;
     private WebSocketManager websocket;
     public Iteractable iteractable;
+    public Color SphereColor, CubeColor, PlayerColor, SuzanneColor, BozzColor, DoorColor, ShimmerStartColor, ShimmerMidColor, ShimmerEndColor;
 
     void Start()
     {
@@ -25,7 +26,7 @@ public class MapConnector : MonoBehaviour
     {
         mapObjects.Clear();
         var updateMinimap = "{'data':{'reset':true}}";
-        websocket.SendMessage(updateMinimap.Replace('\'', '"'));
+        websocket.SendWsMessage(updateMinimap.Replace('\'', '"'));
 
         foreach (Transform world in gameObject.transform)
         {
@@ -76,8 +77,73 @@ public class MapConnector : MonoBehaviour
             }
 
             string jsonData = JsonUtility.ToJson(new MiniMapObjectCollection { data = miniMapObjects });
-            websocket.SendMessage(jsonData.Replace('\'', '"'));
+            websocket.SendWsMessage(jsonData.Replace('\'', '"'));
+
+            string stylesTemplate = @"{
+                ""data"":{
+                    ""css"": {
+                        "".Sphere"": {
+                            ""background-color"": ""{SphereColor};"",
+                            ""border-radius"": ""var(--size);""
+                        },
+                        "".Cube"": {
+                            ""background-color"": ""{CubeColor};""
+                        },
+                        "".Player"": {
+                            ""--size"": ""40px;"",
+                            ""opacity"": ""0.3;"",
+                            ""background-color"": ""{PlayerColor};"",
+                            ""border-radius"": ""var(--size);""
+                        },
+                        "".Suzanne"": {
+                            ""background-color"": ""{SuzanneColor};""
+                        },
+                        "".Bozz"": {
+                            ""background-color"": ""{BozzColor};""
+                        },
+                        "".Door"": {
+                            ""background-color"": ""{DoorColor};"",
+                            ""animation"": ""shimmer 2s infinite;""
+                        },
+                        ""@keyframes shimmer"": {
+                            ""0%"": {
+                                ""background-color"": ""{ShimmerStartColor};""
+                            },
+                            ""50%"": {
+                                ""background-color"": ""{ShimmerMidColor};""
+                            },
+                            ""100%"": {
+                                ""background-color"": ""{ShimmerEndColor};""
+                            }
+                        }
+                    }
+                }
+            }";
+            
+
+            string styles = stylesTemplate
+                .Replace("{SphereColor}", ColorToRgbString(SphereColor))
+                .Replace("{CubeColor}", ColorToRgbString(CubeColor))
+                .Replace("{PlayerColor}", ColorToRgbString(PlayerColor))
+                .Replace("{SuzanneColor}", ColorToRgbString(SuzanneColor))
+                .Replace("{BozzColor}", ColorToRgbString(BozzColor))
+                .Replace("{DoorColor}", ColorToRgbString(DoorColor))
+                .Replace("{ShimmerStartColor}", ColorToRgbString(ShimmerStartColor))
+                .Replace("{ShimmerMidColor}", ColorToRgbString(ShimmerMidColor))
+                .Replace("{ShimmerEndColor}", ColorToRgbString(ShimmerEndColor));
+
+            // Now 'styles' contains your JSON string with the dynamic color values.
+
+
+            websocket.SendWsMessage(styles);
         }
+    }
+    string ColorToRgbString(Color color)
+    {
+        int r = Mathf.RoundToInt(color.r * 255);
+        int g = Mathf.RoundToInt(color.g * 255);
+        int b = Mathf.RoundToInt(color.b * 255);
+        return $"rgb({r}, {g}, {b})";
     }
 
     private Vector2 RelativeCoords(Vector3 objectWorldPos, Vector3 planeMin, Vector3 planeMax)
