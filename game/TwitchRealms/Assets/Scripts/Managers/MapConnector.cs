@@ -65,23 +65,21 @@ public class MapConnector : MonoBehaviour
             foreach (var mapObject in mapObjects)
             {
                 Vector2 normalizedCoords = RelativeCoords(mapObject.transform.position, planeMin, planeMax);
-                string kind = string.IsNullOrEmpty(mapObject.cssClassName)
-                    ? mapObject.name.Split(' ')[0].Replace("(Clone)", "")
-                    : mapObject.cssClassName;
+                string kind = mapObject.name.Split(' ')[0].Replace("(Clone)", "");
 
-                MiniMapObject miniMap = new MiniMapObject
+                MiniMapObject miniMap = new()
                 {
-                    id = mapObject.GetInstanceID(),
-                    x = normalizedCoords.x,
-                    y = normalizedCoords.y,
-                    kind = kind
+                    id = Math.Abs(mapObject.GetInstanceID()),
+                    x = Math.Round(normalizedCoords.x, 3),
+                    y = Math.Round(normalizedCoords.y, 3),
+                    kind = kind,
                 };
 
                 miniMapObjects.Add(miniMap);
 
                 // Handle color and extra CSS
-
-                stylesBuilder.Append($"\".{kind}\":{{");
+                string id = "_" + Math.Abs(mapObject.GetInstanceID());
+                stylesBuilder.Append($"\".{id}\":{{");
                 stylesBuilder.Append($"\"background-color\":\"{ColorToRgbString(mapObject.mapColor)}\"");
 
                 string extraCss = mapObject.extraCss;
@@ -134,7 +132,7 @@ public class MapConnector : MonoBehaviour
 public class MiniMapObject
 {
     public int id;
-    public float x, y;
+    public double x, y;
     public string kind;
 }
 

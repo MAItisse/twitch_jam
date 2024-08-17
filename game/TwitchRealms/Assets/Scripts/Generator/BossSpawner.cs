@@ -7,11 +7,10 @@ public class BossSpawner : MonoBehaviour
     public GameObject boss;
     public string bossName = "Bozz";
 
-    private void Awake()
+    private void OnEnable()
     {
         var go = Instantiate(boss, transform.position + new Vector3(0, .5f, 0), Quaternion.identity, transform.parent);
         var mapObject = go.AddComponent<MapObject>();
-        mapObject.cssClassName = bossName;
         mapObject.mapColor = Color.red;
     }
 }

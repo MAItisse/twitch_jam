@@ -1610,7 +1610,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f688917503ab79489339ee3600c2cbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cssClassName: Player
   mapColor: {r: 0, g: 0.2166667, b: 1, a: 1}
   extraCss: '"--size": "40px;",           "opacity": "0.3;",           "background-color":
     "blue;",           "border-radius": "var(--size);"'
@@ -1783,9 +1782,9 @@ RectTransform:
   - {fileID: 1186025800}
   m_Father: {fileID: 1291368419}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 260.6314, y: -224.16315}
   m_SizeDelta: {x: 343.1045, y: 92.1021}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &561351531
@@ -3203,9 +3202,9 @@ RectTransform:
   - {fileID: 958605336}
   m_Father: {fileID: 1291368419}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 260.6314, y: -46.05105}
   m_SizeDelta: {x: 343.1045, y: 92.1021}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1126400045
@@ -4010,7 +4009,7 @@ GameObject:
   - component: {fileID: 1593736897}
   - component: {fileID: 1593736896}
   m_Layer: 0
-  m_Name: TwitchDoorway
+  m_Name: Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4045,7 +4044,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f688917503ab79489339ee3600c2cbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cssClassName: Door
   mapColor: {r: 1, g: 1, b: 1, a: 1}
   extraCss: '"animation": "shimmer 2s infinite;"'
 --- !u!114 &1593736897
@@ -4442,7 +4440,7 @@ GameObject:
   - component: {fileID: 1668068343}
   - component: {fileID: 1668068342}
   m_Layer: 0
-  m_Name: ArenaDoorway
+  m_Name: Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4460,7 +4458,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f688917503ab79489339ee3600c2cbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cssClassName: Door
   mapColor: {r: 1, g: 1, b: 1, a: 1}
   extraCss: '"animation": "shimmer 2s infinite;"'
 --- !u!114 &1668068343
@@ -4906,7 +4903,7 @@ PrefabInstance:
     - target: {fileID: 56380926041504961, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2
+      value: 1.92
       objectReference: {fileID: 0}
     - target: {fileID: 56380926041504961, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
@@ -4916,7 +4913,7 @@ PrefabInstance:
     - target: {fileID: 56380926041504961, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -2.7
+      value: -2.56
       objectReference: {fileID: 0}
     - target: {fileID: 56380926041504961, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
@@ -5288,7 +5285,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2030177029
 MonoBehaviour:
   m_ObjectHideFlags: 0
