@@ -413,42 +413,7 @@
           document.head.appendChild(styleElement);
       }
 
-      let cssText = "";
-
-      for (const selector in styles) {
-          if (styles.hasOwnProperty(selector)) {
-              if (selector.startsWith("@keyframes")) {
-                  // Handling keyframes
-                  cssText += `${selector} {`;
-                  const keyframes = styles[selector];
-                  for (const keyframe in keyframes) {
-                      if (keyframes.hasOwnProperty(keyframe)) {
-                          cssText += `${keyframe} {`;
-                          const properties = keyframes[keyframe];
-                          for (const property in properties) {
-                              if (properties.hasOwnProperty(property)) {
-                                  cssText += `${property}: ${properties[property]}; `;
-                              }
-                          }
-                          cssText += `} `;
-                      }
-                  }
-                  cssText += `} `;
-              } else {
-                  // Handling regular CSS rules
-                  cssText += `${selector} {`;
-                  const properties = styles[selector];
-                  for (const property in properties) {
-                      if (properties.hasOwnProperty(property)) {
-                          cssText += `${property}: ${properties[property]}; `;
-                      }
-                  }
-                  cssText += `} `;
-              }
-          }
-      }
-      // Replace the content of the style element with the new CSS
-      styleElement.textContent = cssText;
+      styleElement.textContent = styles;
     }
 
     if (TESTING) {
