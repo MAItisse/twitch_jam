@@ -193,7 +193,8 @@
 
                 node.id = unit.id;
                 node.classList.add("unit");
-                node.classList.add(unit.kind);
+                // node.classList.add(unit.kind);
+                node.classList.add("_"+unit.id);
                 
                 let bubble = document.createElement("div");
                 bubble.classList.add("unit_enter_bubble");
@@ -254,7 +255,7 @@
     socket.addEventListener("message", function (event) {
       let data = JSON.parse(event.data);
       if (data.data.hasOwnProperty("css")) {
-        // console.log("Applying dynamic styles " + data.data.css);
+        // console.log("Applying dynamic styles " + JSON.stringify(data.data.css));
         applyStylesFromJson(data.data.css);
       }
       
