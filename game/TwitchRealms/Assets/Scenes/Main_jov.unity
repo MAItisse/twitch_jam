@@ -1040,7 +1040,7 @@ PrefabInstance:
     - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
       propertyPath: extraCss
-      value: '"border-radius": "var(--size);"'
+      value: 'border-radius: var(--size);'
       objectReference: {fileID: 0}
     - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
@@ -1261,7 +1261,7 @@ PrefabInstance:
     - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
       propertyPath: extraCss
-      value: '"border-radius": "var(--size);"'
+      value: 'border-radius: var(--size);'
       objectReference: {fileID: 0}
     - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
@@ -1611,8 +1611,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapColor: {r: 0, g: 0.2166667, b: 1, a: 1}
-  extraCss: '"--size": "40px;",           "opacity": "0.3;",           "background-color":
-    "blue;",           "border-radius": "var(--size);"'
+  extraCss: '--size: 40px; opacity: 0.3; background-color: blue; border-radius: var(--size);'
 --- !u!1 &558313769
 GameObject:
   m_ObjectHideFlags: 0
@@ -4459,7 +4458,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapColor: {r: 1, g: 1, b: 1, a: 1}
-  extraCss: '"animation": "shimmer 2s infinite;"'
+  extraCss: 'animation: shimmer 2s infinite;'
 --- !u!114 &1668068343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4625,7 +4624,7 @@ PrefabInstance:
     - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
       propertyPath: extraCss
-      value: '"border-radius": "var(--size);"'
+      value: 'border-radius: var(--size);'
       objectReference: {fileID: 0}
     - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
@@ -4953,7 +4952,7 @@ PrefabInstance:
     - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
       propertyPath: extraCss
-      value: '"border-radius": "var(--size);"'
+      value: 'border-radius: var(--size);'
       objectReference: {fileID: 0}
     - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
@@ -5594,7 +5593,7 @@ PrefabInstance:
     - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}
       propertyPath: extraCss
-      value: '"border-radius": "var(--size);"'
+      value: 'border-radius: var(--size);'
       objectReference: {fileID: 0}
     - target: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346,
         type: 3}

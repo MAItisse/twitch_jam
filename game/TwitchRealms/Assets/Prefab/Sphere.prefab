@@ -132,4 +132,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapColor: {r: 0, g: 0.32398075, b: 0.9607843, a: 1}
-  extraCss: '"border-radius": "var(--size);"'
+  extraCss: 'border-radius: var(--size);'

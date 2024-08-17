@@ -58,9 +58,7 @@ public class MapConnector : MonoBehaviour
 
             List<MiniMapObject> miniMapObjects = new();
             stylesBuilder.Clear();
-            stylesBuilder.Append("{");
-            stylesBuilder.Append("\"data\":{");
-            stylesBuilder.Append("\"css\":{");
+            stylesBuilder.Append("{\"data\":{\"css\": \"");
 
             foreach (var mapObject in mapObjects)
             {
@@ -72,35 +70,32 @@ public class MapConnector : MonoBehaviour
                     id = Math.Abs(mapObject.GetInstanceID()),
                     x = Math.Round(normalizedCoords.x, 3),
                     y = Math.Round(normalizedCoords.y, 3),
-                    kind = kind,
+                    kind = kind
                 };
 
                 miniMapObjects.Add(miniMap);
 
                 // Handle color and extra CSS
                 string id = "_" + Math.Abs(mapObject.GetInstanceID());
-                stylesBuilder.Append($"\".{id}\":{{");
-                stylesBuilder.Append($"\"background-color\":\"{ColorToRgbString(mapObject.mapColor)}\"");
+                stylesBuilder.Append($".{id} {{ background-color: {ColorToRgbString(mapObject.mapColor)}");
 
                 string extraCss = mapObject.extraCss;
                 if (!string.IsNullOrEmpty(extraCss))
                 {
-                    stylesBuilder.Append($", {extraCss.Trim()}");
+                    stylesBuilder.Append($";{extraCss.Trim()}");
                 }
 
-                stylesBuilder.Append("},");
+                stylesBuilder.Append("}");
             }
 
             // Add global keyframes animation
-            stylesBuilder.Append("\"@keyframes shimmer\":{");
-            stylesBuilder.Append("\"0%\":{\"background-color\":\"rgb(170, 220, 170)\"},");
-            stylesBuilder.Append("\"50%\":{\"background-color\":\"rgb(0, 209, 224)\"},");
-            stylesBuilder.Append("\"100%\":{\"background-color\":\"rgb(193, 220, 170)\"}");
+            stylesBuilder.Append("@keyframes shimmer { ");
+            stylesBuilder.Append("0% { background-color: rgb(170, 220, 170)}");
+            stylesBuilder.Append("50% { background-color: rgb(0, 209, 224)}");
+            stylesBuilder.Append("100% { background-color: rgb(193, 220, 170)}");
             stylesBuilder.Append("}");
 
-            stylesBuilder.Append("}"); // Close css
-            stylesBuilder.Append("}"); // Close data
-            stylesBuilder.Append("}"); // Close root
+            stylesBuilder.Append("\"} }"); // Close: data, root
 
             string styles = stylesBuilder.ToString();
             string jsonData = JsonUtility.ToJson(new MiniMapObjectCollection { data = miniMapObjects });
