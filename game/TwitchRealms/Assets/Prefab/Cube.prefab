@@ -131,3 +131,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f688917503ab79489339ee3600c2cbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mapColor: {r: 0.029804826, g: 1, b: 0, a: 1}
+  extraCss: 

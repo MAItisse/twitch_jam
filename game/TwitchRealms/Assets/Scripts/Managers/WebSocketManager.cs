@@ -90,7 +90,7 @@ public class WebSocketManager : MonoBehaviour
         // Assuming the API might need a JSON payload
         string jsonPayload = "{}"; // Adjust the payload as needed
 
-        UnityWebRequest request = new UnityWebRequest(url + channelId, "POST");
+        UnityWebRequest request = new(url + channelId, "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonPayload);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();

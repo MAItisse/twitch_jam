@@ -27,10 +27,10 @@ public class ChannelPointListener : MonoBehaviour
             switch (curRewardEvent.CustomRewardTitle)
             {
                 case "Add Sphere To World":
-                    _itemGenerator.GenerateGameObject(sphere.gameObject);
+                    _itemGenerator.GenerateGameObject(sphere.gameObject.GetComponent<MapObject>());
                     break;
                 case "Add Cube To World":
-                    _itemGenerator.GenerateGameObject(cube.gameObject);
+                    _itemGenerator.GenerateGameObject(cube.gameObject.GetComponent<MapObject>());
                     break;
                 default:
                     Debug.Log("Reward not found!");

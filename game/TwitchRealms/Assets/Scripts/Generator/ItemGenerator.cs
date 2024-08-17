@@ -9,14 +9,16 @@ public class ItemGenerator : MonoBehaviour
     private MapConnector connector;
     private void Start()
     {
-        connector = GameObject.FindObjectOfType<MapConnector>();
+        connector = FindObjectOfType<MapConnector>();
     }
 
-    public void GenerateGameObject(GameObject combinable)
+    public void GenerateGameObject(MapObject combinable)
     {
         Vector3 spawnPosition = transform.position + new Vector3(Random.Range(-range, range), 0.5f, Random.Range(-range, range));
-        GameObject go = Instantiate(combinable, spawnPosition, Quaternion.identity, transform.parent);
-        connector.AddCombinable(go.GetComponent<MapObject>());
+        MapObject mapObject = Instantiate(combinable, spawnPosition, Quaternion.identity, transform.parent);
+        mapObject.extraCss = combinable.extraCss;
+        mapObject.mapColor = combinable.mapColor;
+        connector.AddCombinable(mapObject);
     }
 
     private void OnDrawGizmos()
