@@ -1,0 +1,9 @@
+run:
+    mold -run cargo run --color always --package demo
+
+# dev:
+#     mold -run cargo run --features dev fast_compile
+
+# build:
+# mold -run cargo run --release --features release
+

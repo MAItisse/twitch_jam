@@ -1,0 +1,8 @@
+[package]
+name = "demo"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = "0.14"
+bevy_twitch_minimap = {path = "../bevy_twitch_minimap"}

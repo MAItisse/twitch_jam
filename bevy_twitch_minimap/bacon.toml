@@ -1,0 +1,72 @@
+# This is a configuration file for the bacon tool
+#
+# Bacon repository: https://github.com/Canop/bacon
+# Complete help on configuration: https://dystroy.org/bacon/config/
+# You can also check bacon's own bacon.toml file
+#  as an example: https://github.com/Canop/bacon/blob/main/bacon.toml
+
+default_job = "check"
+
+[jobs.check]
+command = ["cargo", "check", "--color", "always"]
+need_stdout = false
+
+[jobs.check-all]
+command = ["cargo", "check", "--all-targets", "--color", "always"]
+need_stdout = false
+
+# Run clippy on the default target
+[jobs.clippy]
+command = [
+    "cargo", "clippy",
+    "--color", "always",
+]
+need_stdout = false
+
+# Run clippy on all targets
+# To disable some lints, you may change the job this way:
+#    [jobs.clippy-all]
+#    command = [
+#        "cargo", "clippy",
+#        "--all-targets",
+#        "--color", "always",
+#    	 "--",
+#    	 "-A", "clippy::bool_to_int_with_if",
+#    	 "-A", "clippy::collapsible_if",
+#    	 "-A", "clippy::derive_partial_eq_without_eq",
+#    ]
+# need_stdout = false
+[jobs.clippy-all]
+command = [
+    "cargo", "clippy",
+    "--all-targets",
+    "--color", "always",
+]
+need_stdout = false
+
+[jobs.test]
+command = [
+    "cargo", "test", "--color", "always",
+    "--", "--color", "always", # see https://github.com/Canop/bacon/issues/124
+]
+need_stdout = true
+
+[jobs.doc]
+command = ["cargo", "doc", "--color", "always", "--no-deps"]
+need_stdout = false
+
+[jobs.doc-open]
+command = ["cargo", "doc", "--color", "always", "--no-deps", "--open"]
+need_stdout = false
+on_success = "back" # so that we don't open the browser at each change
+
+[jobs.run]
+command = [
+    "just", "run"
+]
+need_stdout = true
+allow_warnings = true
+background = false
+on_success = "back"
+
+
