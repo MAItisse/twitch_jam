@@ -22,10 +22,21 @@
         height: 300px;
         background-color: #0000008a; /* Black background */
         color: #fff;
-        border: 2px solid #333;
-        border-radius: 8px;
         overflow: hidden;
       }
+
+      #resize-handle {
+        width: 15px;
+        height: 15px;
+        background-color: #888;
+        position: absolute;
+        bottom: -20px;
+        right: 0;
+        cursor: nwse-resize;
+        z-index: 20; /* Ensure it's above the minimap */
+        border-radius: 3px;
+      }
+
 
       .bubble {
         position: absolute;
@@ -220,6 +231,7 @@
                 <div id="background"></div>
             </div>
         </div>
+      <div id="resize-handle"></div>
     </div>
     
       
@@ -505,20 +517,26 @@
 
     // Add the drag-and-drop functionality for the minimap
     let isDragging = false;
+    let isResizing = false;
     let startX, startY, initialLeft, initialTop;
 
     const minimapWrapper = document.getElementById("minimap-wrapper");
     const minimapHeader = document.getElementById("minimap-header");
+    const resizeHandle = document.getElementById("resize-handle");
 
+    // Function to start dragging
     minimapHeader.addEventListener("mousedown", (e) => {
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        initialLeft = minimapWrapper.offsetLeft;
-        initialTop = minimapWrapper.offsetTop;
-        minimapHeader.style.cursor = "grabbing";
+        if (!isResizing) { // Only allow drag if not resizing
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            initialLeft = minimapWrapper.offsetLeft;
+            initialTop = minimapWrapper.offsetTop;
+            minimapHeader.style.cursor = "grabbing";
+        }
     });
 
+    // Function to handle dragging
     document.addEventListener("mousemove", (e) => {
         if (isDragging) {
             const dx = e.clientX - startX;
@@ -528,14 +546,47 @@
         }
     });
 
+    // Function to stop dragging
     document.addEventListener("mouseup", () => {
         isDragging = false;
         minimapHeader.style.cursor = "grab";
+        if (isResizing) {
+            // Recalculate the initial position after resizing
+            initialLeft = minimapWrapper.offsetLeft;
+            initialTop = minimapWrapper.offsetTop;
+        }
     });
 
-    minimapHeader.style.cursor = "grab";
+    // Function to start resizing
+    resizeHandle.addEventListener("mousedown", (e) => {
+        isResizing = true;
+        document.body.style.cursor = 'nwse-resize'; // Change cursor to resize
+    });
 
+    // Function to handle resizing
+    document.addEventListener("mousemove", (e) => {
+        if (isResizing) {
+            const newWidth = e.clientX - minimapWrapper.offsetLeft;
+            const newHeight = e.clientY - minimapWrapper.offsetTop;
 
+            // Apply new width and height
+            minimapWrapper.style.width = `${newWidth}px`;
+            minimapWrapper.style.height = `${newHeight}px`;
+
+            const minimapContainer = document.getElementById("minimap-container");
+            minimapContainer.style.width = `${newWidth}px`;
+            minimapContainer.style.height = `${newHeight}px`;
+        }
+    });
+
+    // Function to stop resizing
+    document.addEventListener("mouseup", () => {
+        isResizing = false;
+        document.body.style.cursor = ''; // Reset cursor
+        // Recalculate the initial position after resizing
+        initialLeft = minimapWrapper.offsetLeft;
+        initialTop = minimapWrapper.offsetTop;
+    });
 
     const opacitySlider = document.getElementById("minimap-opacity");
     opacitySlider.addEventListener("input", function () {
