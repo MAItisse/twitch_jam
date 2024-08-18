@@ -11,6 +11,9 @@ use websocket::OwnedMessage;
 
 const HOST: &str = "websocket.matissetec.dev";
 
+/// Represents the unit data for the minimap.
+///
+/// You should rarely need to construct or interact with this yourself
 #[derive(Serialize, Debug, Clone)]
 pub struct Unit {
     pub id: u32,
@@ -19,6 +22,10 @@ pub struct Unit {
     pub y: f32,
 }
 
+/// Represents possible events to be sent to the server.
+///
+/// The only one you should want to construct yourself is `Reset`, as the other variants are sent
+/// automatically by the `TwitchMinimapPlugin`
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum ServerData {
@@ -28,11 +35,15 @@ pub enum ServerData {
     Units(Vec<Unit>),
 }
 
+/// A server event is the data sent to the server, you should rarely need to construct this
+/// yourself.
 #[derive(Serialize, Event, Debug, Clone)]
 pub struct ServerEvent {
     pub data: ServerData,
 }
 
+/// This is an event that is triggered when a user clicks on the minimap
+/// The `x` and `y` values are normalized between 0-1.
 #[derive(Deserialize, Event, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ClickEvent {
@@ -43,16 +54,26 @@ pub struct ClickEvent {
     pub bubble_size: f32,
 }
 
+/// A event from a client.
+///
+/// You can also listen to the variants directly.
 #[derive(Deserialize, Event, Debug)]
 #[serde(untagged)]
 pub enum ClientEvent {
     Click(ClickEvent),
 }
 
+/// This is the main component you will interact with.
+/// The plugin will automatically transmit the data of all entities marked with this component to
+/// the server.
 #[derive(Component, Debug)]
 pub struct OnMinimap {
+    /// This is added as a css class to the unit divs
+    /// As such it is useful for reusing css without needing to duplicate it across `extra_css` 
     pub kind: String,
+    /// The color the entity will have on the map
     pub color: Color,
+    /// Any extra css to be applied to this unit specifically
     pub extra_css: Option<String>,
 }
 
@@ -66,6 +87,7 @@ impl Default for OnMinimap {
     }
 }
 
+/// Emit this event once to trigger the connection to the server.
 #[derive(Event, Clone, Debug)]
 pub struct Connect {
     pub host: String,
@@ -73,6 +95,7 @@ pub struct Connect {
 }
 
 impl Connect {
+    /// Create a connection event with the default server host.
     pub fn new_with_default_host(channel: String) -> Self {
         Self {
             host: String::from(HOST),
@@ -81,15 +104,19 @@ impl Connect {
     }
 }
 
+/// Contains information on the world space which is used to normalize entity positions.
 #[derive(Resource, Clone)]
 pub struct WorldInfo {
+    /// The size of the world.
     pub size: Vec2,
+    /// The top left corner of the world.
     pub origin: Vec2,
 }
 
 #[derive(Resource)]
 struct UpdateTimer(Timer);
 
+/// Any extra global css to be included
 #[derive(Resource, Default)]
 pub struct ExtraCss(pub String);
 
@@ -105,9 +132,16 @@ struct Channels {
     server_events: std::sync::mpsc::Sender<ServerEvent>,
 }
 
+/// The main plugin.
 pub struct TwitchMinimapPlugin {
+    /// How often should the game update unit positions.
+    /// Recommend 1 seconds for most games, or 0.1 seconds for near-realtime applications.
     pub send_interval: Duration,
+    /// The world information
     pub world: WorldInfo,
+    /// If set will immediatly connect to the server using provided settings.
+    /// This is mainly recommended for testing as usually you would want to have the user enter the
+    /// channel information in a UI.
     pub auto_connect: Option<Connect>,
 }
 
