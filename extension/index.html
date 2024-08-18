@@ -20,15 +20,10 @@
       #minimap-container {
         width: 300px;
         height: 300px;
-        position: absolute;
-        bottom: 50px;
-        left: 0;
         background-color: #0000008a; /* Black background */
         color: #fff;
         border: 2px solid #333;
         border-radius: 8px;
-        box-sizing: border-box;
-        margin: 10px; /* Add some margin from the edge */
         overflow: hidden;
       }
 
@@ -132,6 +127,15 @@
           animation: expand 2s linear;
       }
 
+      #minimap-wrapper {
+          position: absolute;
+          bottom: 50px;
+          left: 0;
+          z-index: 10; /* Ensure the wrapper is above other elements */
+          width: 300px; /* Define the width here */
+          height: 300px;
+      }
+
       #minimap-header {
         width: 100%;
         height: 20px;
@@ -142,6 +146,16 @@
         cursor: grab;
         border-radius: 8px 8px 0 0;
         z-index: 10; /* Ensure it's on top */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      #units-container {
+        position: absolute;
+        top: 20;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden; /* Ensure nothing overflows */
       }
 
       #minimap-header.grabbing + #units-container {
@@ -199,12 +213,15 @@
           <button id="save-settings">Save</button>
         </div>
       </div>
-      <div id="minimap-container">
+      <div id="minimap-wrapper">
         <div id="minimap-header">Drag Here</div>
-        <div id="units-container">
-            <div id="background"></div>
+        <div id="minimap-container">
+            <div id="units-container">
+                <div id="background"></div>
+            </div>
         </div>
-      </div>
+    </div>
+    
       
   </body>
   <script>
@@ -415,10 +432,15 @@
     const useSphereCheckbox = document.getElementById("useSphere").checked;
     const useCubeCheckbox = document.getElementById("useCube").checked;
     const useRandomCheckbox = document.getElementById("useRandom").checked;
-    const minimap = document.getElementById("minimap-container");
+    const minimap = document.getElementById("minimap-wrapper");
     const rect = minimap.getBoundingClientRect();
     const x = (event.clientX - rect.left) / rect.width;
-    const y = (1-(event.clientY - rect.top) / rect.height);
+    const y = (1-(event.clientY - rect.top - 20) / rect.height);
+    // const x = (event.clientX - minimap.offsetLeft) / minimap.offsetWidth;
+    // const y = (event.clientY - minimap.offsetTop) / minimap.offsetHeight;
+    console.log("Clicked at", x, y);
+    console.log("event ", event.clientX, event.clientY);
+    console.log("rect ", rect.left, rect.top, rect.width, rect.height, rect);
 
     let finalColor = bubbleColor;
     if (document.getElementById("random-color").checked) {
@@ -485,33 +507,30 @@
     let isDragging = false;
     let startX, startY, initialLeft, initialTop;
 
+    const minimapWrapper = document.getElementById("minimap-wrapper");
     const minimapHeader = document.getElementById("minimap-header");
-    const minimap = document.getElementById("minimap-container");
-    const unitsContainer = document.getElementById("units-container");
 
     minimapHeader.addEventListener("mousedown", (e) => {
-      isDragging = true;
-      startX = e.clientX;
-      startY = e.clientY;
-      initialLeft = minimap.offsetLeft;
-      initialTop = minimap.offsetTop;
-      minimapHeader.style.cursor = "grabbing";
-      unitsContainer.style.pointerEvents = "none"; // Disable map interaction during drag
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        initialLeft = minimapWrapper.offsetLeft;
+        initialTop = minimapWrapper.offsetTop;
+        minimapHeader.style.cursor = "grabbing";
     });
 
     document.addEventListener("mousemove", (e) => {
-      if (isDragging) {
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        minimap.style.left = `${initialLeft + dx}px`;
-        minimap.style.top = `${initialTop + dy}px`;
-      }
+        if (isDragging) {
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            minimapWrapper.style.left = `${initialLeft + dx}px`;
+            minimapWrapper.style.top = `${initialTop + dy}px`;
+        }
     });
 
     document.addEventListener("mouseup", () => {
-      isDragging = false;
-      minimapHeader.style.cursor = "grab";
-      unitsContainer.style.pointerEvents = "auto"; // Re-enable map interaction after drag
+        isDragging = false;
+        minimapHeader.style.cursor = "grab";
     });
 
     minimapHeader.style.cursor = "grab";
