@@ -154,12 +154,24 @@
             <input type="color" id="bubble-color" value="#00ff00" />
           </label>
           <label>
-            Use Random Color
+            Use Random Color:
             <input type="checkbox" id="random-color" />
           </label>
           <label>
             Bubble Size:
             <input type="number" id="bubble-size" value="50" min="10" max="200" />
+          </label>
+          <label>
+            Sphere:
+            <input type="checkbox" id="useSphere" />
+          </label>
+          <label>
+            Cube:
+            <input type="checkbox" id="useCube" />
+          </label>
+          <label>
+            Random:
+            <input type="checkbox" id="useRandom" />
           </label>
           <button id="save-settings">Save</button>
         </div>
@@ -274,7 +286,14 @@
       if (!reconnectInterval) {
         reconnectInterval = setInterval(() => {
           console.log("Attempting to reconnect...");
-          connectWebSocket();
+          try {
+            connectWebSocket();
+          }
+          catch (error) {
+            console.log("Failed to connect to WebSocket server:", error);
+            return;
+          }
+
         }, 10000);
       }
     });
@@ -282,7 +301,7 @@
     socket.addEventListener("error", function (event) {
       let container = document.getElementById("minimap-container");
       container.style.display = "none";
-      console.error("WebSocket error:", event);
+      console.log("WebSocket error, likely disconnected:", event);
     });
   }
 
@@ -329,6 +348,10 @@
     .getElementById("save-settings")
     .addEventListener("click", function () {
       const randomColorCheckbox = document.getElementById("random-color").checked;
+      const useSphereCheckbox = document.getElementById("useSphere").checked;
+      const useCubeCheckbox = document.getElementById("useCube").checked;
+      const useRandomCheckbox = document.getElementById("useRandom").checked;
+      
 
       if (randomColorCheckbox) {
         bubbleColor = getRandomColor();
@@ -342,11 +365,20 @@
       );
       document.getElementById("settings-menu").style.display = "none";
       
+      let itemType = "Random";
+      if (useSphereCheckbox) {
+        itemType = "Sphere";
+      } else if (useCubeCheckbox) {
+        itemType = "Cube";
+      }
+      console.log("Item type: " + itemType);
+
       const data = {
         randomColor: randomColorCheckbox,
         bubbleColor: bubbleColor,
         bubbleSize: bubbleSize,
         userId: userId,
+        itemType: itemType
       };
       sendMessage(JSON.stringify(data));
     });
@@ -358,6 +390,9 @@
     });
 
   document.getElementById("minimap-container").addEventListener("click", function (event) {
+    const useSphereCheckbox = document.getElementById("useSphere").checked;
+    const useCubeCheckbox = document.getElementById("useCube").checked;
+    const useRandomCheckbox = document.getElementById("useRandom").checked;
     const minimap = document.getElementById("minimap-container");
     const rect = minimap.getBoundingClientRect();
     const x = (event.clientX - rect.left) / rect.width;
@@ -367,13 +402,21 @@
     if (document.getElementById("random-color").checked) {
       finalColor = getRandomColor();
     }
+    
+    let itemType = "Random";
+    if (useSphereCheckbox) {
+      itemType = "Sphere";
+    } else if (useCubeCheckbox) {
+      itemType = "Cube";
+    }
 
     const data = {
       x: x,
       y: y,
       userId: userId,
       bubbleColor: finalColor,
-      bubbleSize: bubbleSize
+      bubbleSize: bubbleSize,
+      itemType: itemType
     };
     sendMessage(JSON.stringify(data));
 
