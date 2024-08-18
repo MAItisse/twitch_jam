@@ -1,0 +1,6 @@
+[book]
+authors = ["vivax"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Twitch-Minimap"
