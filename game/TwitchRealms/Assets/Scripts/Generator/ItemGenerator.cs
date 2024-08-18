@@ -15,9 +15,15 @@ public class ItemGenerator : MonoBehaviour
     public void GenerateGameObject(MapObject combinable)
     {
         Vector3 spawnPosition = transform.position + new Vector3(Random.Range(-range, range), 0.5f, Random.Range(-range, range));
-        MapObject mapObject = Instantiate(combinable, spawnPosition, Quaternion.identity, transform.parent);
+        GenerateGameObject(combinable, spawnPosition, combinable.mapColor);
+    }
+
+    public void GenerateGameObject(MapObject combinable, Vector3 position, Color mapColor)
+    {
+        MapObject mapObject = Instantiate(combinable, position, Quaternion.identity, transform.parent);
         mapObject.extraCss = combinable.extraCss;
-        mapObject.mapColor = combinable.mapColor;
+        mapObject.mapColor = mapColor;
+
         connector.AddCombinable(mapObject);
     }
 
