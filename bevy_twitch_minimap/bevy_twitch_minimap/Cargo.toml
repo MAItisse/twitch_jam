@@ -2,6 +2,8 @@
 name = "bevy_twitch_minimap"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+description = "bevy plugin for interacting with twitch minimap extension."
 
 [dependencies]
 bevy = {version = "0.14", default-features=false, features=["bevy_color"]}
