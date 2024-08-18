@@ -4,13 +4,10 @@ using UnityEngine;
 
 public class BossSpawner : MonoBehaviour
 {
-    public GameObject boss;
-    public string bossName = "Bozz";
+    public MapObject boss;
 
     private void OnEnable()
     {
-        var go = Instantiate(boss, transform.position + new Vector3(0, .5f, 0), Quaternion.identity, transform.parent);
-        var mapObject = go.AddComponent<MapObject>();
-        mapObject.mapColor = Color.red;
+        Instantiate(boss, transform.position + new Vector3(0, .5f, 0), Quaternion.identity, transform.parent);
     }
 }

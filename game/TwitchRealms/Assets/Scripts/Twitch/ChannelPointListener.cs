@@ -13,7 +13,7 @@ public class ChannelPointListener : MonoBehaviour
     private void Start()
     {
         _customRewardEvents = Twitch.API.SubscribeToCustomRewardEvents();
-        _itemGenerator = GameObject.FindObjectOfType<ItemGenerator>();
+        _itemGenerator = FindObjectOfType<ItemGenerator>();
     }
 
     private void Update()

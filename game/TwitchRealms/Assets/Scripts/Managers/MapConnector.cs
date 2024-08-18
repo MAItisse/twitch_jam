@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -18,6 +19,7 @@ public class MapConnector : MonoBehaviour
         websocket = FindObjectOfType<WebSocketManager>();
         UpdateMapWorld();
         StartCoroutine(UpdateLobby());
+        StartCoroutine(UpdateCSS());
     }
 
     public void UpdateMapWorld()
@@ -30,7 +32,7 @@ public class MapConnector : MonoBehaviour
         {
             if (world.gameObject.activeInHierarchy)
             {
-                MapObject[] worldCombinables = world.GetComponentsInChildren<MapObject>(true);
+                MapObject[] worldCombinables = world.GetComponentsInChildren<MapObject>(true).Where(combinable => combinable.gameObject.activeInHierarchy).ToArray();
                 mapObjects.AddRange(worldCombinables);
             }
         }
@@ -39,6 +41,49 @@ public class MapConnector : MonoBehaviour
     public void AddCombinable(MapObject mapObj)
     {
         mapObjects.Add(mapObj);
+    }
+
+    private IEnumerator UpdateCSS()
+    {
+        StringBuilder stylesBuilder = new();
+
+        while (websocket != null)
+        {
+            stylesBuilder.Clear();
+            stylesBuilder.Append("{\"data\":{\"css\": \"");
+            foreach (var mapObject in mapObjects)
+            {
+                // Handle color and extra CSS
+                string id = "_" + Math.Abs(mapObject.GetInstanceID());
+                stylesBuilder.Append($".{id} {{ background-color: {ColorToRgbString(mapObject.mapColor)}");
+                string extraCss = mapObject.extraCss;
+                if (!string.IsNullOrEmpty(extraCss))
+                {
+                    stylesBuilder.Append($";{extraCss.Trim()}");
+                }
+
+                stylesBuilder.Append("}");
+            }
+            // Add global keyframes animations, these are available to be added to extra css
+            stylesBuilder.Append("@keyframes shimmer {");
+            stylesBuilder.Append("0% { background-color: rgb(170, 220, 170)}");
+            stylesBuilder.Append("50% { background-color: rgb(0, 209, 224)}");
+            stylesBuilder.Append("100% { background-color: rgb(193, 220, 170)}");
+            stylesBuilder.Append("}");
+            stylesBuilder.Append("@keyframes sizeFluctuation {");
+            stylesBuilder.Append("100% { transform: scale(2); }");
+            stylesBuilder.Append("}");
+            stylesBuilder.Append("@keyframes doRotate {");
+            stylesBuilder.Append("0% { transform: rotate(0deg) }");
+            stylesBuilder.Append("100% { transform: rotate(360deg) }");
+            stylesBuilder.Append("}");
+            stylesBuilder.Append("\"} }"); // Close: data, root
+
+            string styles = stylesBuilder.ToString();
+            websocket.SendWsMessage(styles);
+
+            yield return new WaitForSeconds(1f);
+        }
     }
 
     private IEnumerator UpdateLobby()
@@ -50,15 +95,11 @@ public class MapConnector : MonoBehaviour
         Vector3 planeMin = planeCenter - new Vector3(planeSizeX / 2f, 0f, planeSizeZ / 2f);
         Vector3 planeMax = planeCenter + new Vector3(planeSizeX / 2f, 0f, planeSizeZ / 2f);
 
-        StringBuilder stylesBuilder = new();
-
         while (websocket != null)
         {
             yield return new WaitForSeconds(0.1f);
 
             List<MiniMapObject> miniMapObjects = new();
-            stylesBuilder.Clear();
-            stylesBuilder.Append("{\"data\":{\"css\": \"");
 
             foreach (var mapObject in mapObjects)
             {
@@ -72,37 +113,12 @@ public class MapConnector : MonoBehaviour
                     y = Math.Round(normalizedCoords.y, 3),
                     kind = kind
                 };
-
                 miniMapObjects.Add(miniMap);
-
-                // Handle color and extra CSS
-                string id = "_" + Math.Abs(mapObject.GetInstanceID());
-                stylesBuilder.Append($".{id} {{ background-color: {ColorToRgbString(mapObject.mapColor)}");
-
-                string extraCss = mapObject.extraCss;
-                if (!string.IsNullOrEmpty(extraCss))
-                {
-                    stylesBuilder.Append($";{extraCss.Trim()}");
-                }
-
-                stylesBuilder.Append("}");
             }
-
-            // Add global keyframes animation
-            stylesBuilder.Append("@keyframes shimmer { ");
-            stylesBuilder.Append("0% { background-color: rgb(170, 220, 170)}");
-            stylesBuilder.Append("50% { background-color: rgb(0, 209, 224)}");
-            stylesBuilder.Append("100% { background-color: rgb(193, 220, 170)}");
-            stylesBuilder.Append("}");
-
-            stylesBuilder.Append("\"} }"); // Close: data, root
-
-            string styles = stylesBuilder.ToString();
             string jsonData = JsonUtility.ToJson(new MiniMapObjectCollection { data = miniMapObjects });
 
             // Send both JSON data and styles via WebSocket
             websocket.SendWsMessage(jsonData);
-            websocket.SendWsMessage(styles);
         }
     }
 

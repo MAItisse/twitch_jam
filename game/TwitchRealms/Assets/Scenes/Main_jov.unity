@@ -142,6 +142,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Cube (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 6060804276284357569, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6734683656080367841, guid: c4e2254bc3791ca4ea8139e804ad4063,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -275,6 +280,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Cube (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6060804276284357569, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6734683656080367841, guid: c4e2254bc3791ca4ea8139e804ad4063,
         type: 3}
@@ -1062,6 +1072,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sphere (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 7247457265671267121, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1283,6 +1298,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sphere (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 7247457265671267121, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1296,6 +1316,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1851388792}
     m_Modifications:
+    - target: {fileID: 785909458794649632, guid: 959f00ee0fb4c9f4d846734eda68ba8a,
+        type: 3}
+      propertyPath: extraCss
+      value: 'border-radius: 100%; border: 0px solid #555; animation: sizeFluctuation
+        1s ease-in-out alternate infinite; transform-origin: bottom right;'
+      objectReference: {fileID: 0}
     - target: {fileID: 785909458794649632, guid: 959f00ee0fb4c9f4d846734eda68ba8a,
         type: 3}
       propertyPath: mapColor.b
@@ -2309,6 +2335,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keepAliveInterval: 30
   channelId: 0
+  cube: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063, type: 3}
+  sphere: {fileID: 3019368023829489804, guid: bd9f0303d4e64a6498f5f6caf90d4346, type: 3}
+  ground: {fileID: 1315158003}
+  parentOfClicks: {fileID: 1851388791}
 --- !u!114 &724244371
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4044,7 +4074,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapColor: {r: 1, g: 1, b: 1, a: 1}
-  extraCss: '"animation": "shimmer 2s infinite;"'
+  extraCss: 'animation: shimmer 2s infinite, doRotate 10s linear infinite;'
 --- !u!114 &1593736897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4351,6 +4381,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Cube (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 6060804276284357569, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6734683656080367841, guid: c4e2254bc3791ca4ea8139e804ad4063,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -4458,7 +4493,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapColor: {r: 1, g: 1, b: 1, a: 1}
-  extraCss: 'animation: shimmer 2s infinite;'
+  extraCss: 'animation: shimmer 2s infinite, doRotate 10s linear infinite;'
 --- !u!114 &1668068343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4645,6 +4680,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Sphere (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7247457265671267121, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4974,6 +5014,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sphere (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 7247457265671267121, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5023,8 +5068,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87cebcb129ac2724aa082f152b5d705c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boss: {fileID: 4067439053566331101, guid: 27f1f75807633474ebccd2080dbc10e8, type: 3}
-  bossName: Bozz
+  boss: {fileID: 1363183666685433418, guid: 27f1f75807633474ebccd2080dbc10e8, type: 3}
 --- !u!1 &1841037136
 GameObject:
   m_ObjectHideFlags: 0
@@ -5038,7 +5082,7 @@ GameObject:
   - component: {fileID: 1841037139}
   - component: {fileID: 1841037138}
   m_Layer: 0
-  m_Name: Plane
+  m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5143,6 +5187,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Cube (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6060804276284357569, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6734683656080367841, guid: c4e2254bc3791ca4ea8139e804ad4063,
         type: 3}
@@ -5620,6 +5669,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sphere
       objectReference: {fileID: 0}
+    - target: {fileID: 7247457265671267121, guid: bd9f0303d4e64a6498f5f6caf90d4346,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5637,6 +5691,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Cube
+      objectReference: {fileID: 0}
+    - target: {fileID: 6060804276284357569, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6734683656080367841, guid: c4e2254bc3791ca4ea8139e804ad4063,
         type: 3}
@@ -5687,6 +5746,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
+        type: 3}
+      propertyPath: extraCss
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8873200097960475375, guid: c4e2254bc3791ca4ea8139e804ad4063,
         type: 3}

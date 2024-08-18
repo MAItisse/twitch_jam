@@ -76,7 +76,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 495efe8b6185b1d45a876b30999e3431,
         type: 3}
       propertyPath: m_Name
-      value: suzanne
+      value: Bozz
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -90,6 +90,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: -1900145628458939930}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 495efe8b6185b1d45a876b30999e3431,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1363183666685433418}
   m_SourcePrefab: {fileID: 100100000, guid: 495efe8b6185b1d45a876b30999e3431, type: 3}
 --- !u!1 &4067439053566331101 stripped
 GameObject:
@@ -130,3 +134,17 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.68359375
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1363183666685433418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4067439053566331101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f688917503ab79489339ee3600c2cbe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mapColor: {r: 1, g: 0.31569973, b: 0, a: 1}
+  extraCss: 

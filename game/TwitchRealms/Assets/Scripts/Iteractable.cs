@@ -20,21 +20,6 @@ public class Iteractable : MonoBehaviour
         websocket = GameObject.FindObjectOfType<WebSocketManager>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        //Debug.Log(other.gameObject.name);
-        websocket.SendWsMessage($"following {other.gameObject.name}");
-        // combine 
-
-        // todo set combine based on results of poll
-    }
-
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireCube(gameObject.transform.position, Vector3.one);

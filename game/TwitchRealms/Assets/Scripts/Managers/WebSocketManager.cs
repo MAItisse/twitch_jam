@@ -23,9 +23,16 @@ public class WebSocketManager : MonoBehaviour
     private float reconnectionDelay = 2.0f;
     private static WebSocketManager instance;
     private BubbleGenerator _bubbleGenerator;
+    private ItemGenerator _itemGenerator;
 
     private bool showClick = false;
     private string _messageEventData;
+
+    public MapObject cube, sphere;
+    public GameObject ground;
+    public GameObject parentOfClicks;
+
+
 
     private void Awake()
     {
@@ -44,7 +51,8 @@ public class WebSocketManager : MonoBehaviour
     {
         // this is so we can keep the keepalive running while the service is not focused
         Application.runInBackground = true;
-        _bubbleGenerator = GameObject.FindObjectOfType<BubbleGenerator>();
+        _bubbleGenerator = FindObjectOfType<BubbleGenerator>();
+        _itemGenerator = FindObjectOfType<ItemGenerator>();
     }
 
     private void Update()
@@ -66,8 +74,33 @@ public class WebSocketManager : MonoBehaviour
                     float t = 5 * 5;
                     _bubbleGenerator.SpawnBubble(data.bubbleColor, data.bubbleSize, new Vector2(Remap(data.x, 0, 1, -t, t), Remap(data.y, 0, 1, -t, t)));
 
-                    //GameObject go = Instantiate(GameObject.CreatePrimitive(PrimitiveType.Cube));
-                    //go.transform.position = new Vector3(data.x, 0, data.y);
+                    MapObject toGenerate;
+                    Debug.Log(data.itemType);
+                    Debug.Log(_messageEventData);
+                    if (data.itemType == "Cube")
+                    {
+                        toGenerate = cube.gameObject.GetComponent<MapObject>();
+                    }
+                    else if (data.itemType == "Sphere")
+                    {
+                        toGenerate = sphere.gameObject.GetComponent<MapObject>();
+                    }
+                    else
+                    {
+                        // Pick randomly between cube and sphere
+                        if (UnityEngine.Random.value < 0.5f)
+                        {
+                            toGenerate = cube.gameObject.GetComponent<MapObject>();
+                        }
+                        else
+                        {
+                            toGenerate = sphere.gameObject.GetComponent<MapObject>();
+                        }
+                    }
+                    
+                    _itemGenerator.GenerateGameObject(toGenerate, new Vector3(Remap(data.x, 0, 1, -t, t), 0, Remap(data.y, 0, 1, -t, t)), HexToColor(data.bubbleColor));
+                    //cube, sphere
+                    //go.transform.position = );
                 }
             }
             catch (Exception ex)
@@ -81,6 +114,26 @@ public class WebSocketManager : MonoBehaviour
     float Remap(float value, float fromMin, float fromMax, float toMin, float toMax)
     {
         return (value - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
+    }
+
+    Color HexToColor(string hex)
+    {
+        if (hex.StartsWith("#"))
+        {
+            hex = hex.Substring(1);
+        }
+
+        byte r = byte.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+        byte g = byte.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+        byte b = byte.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+        byte a = 255; // Default to fully opaque
+
+        if (hex.Length == 8)
+        {
+            a = byte.Parse(hex.Substring(6, 2), System.Globalization.NumberStyles.HexNumber);
+        }
+
+        return new Color32(r, g, b, a);
     }
 
     IEnumerator CreateRoom()

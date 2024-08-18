@@ -10,4 +10,5 @@ public class BubbleData
     public string bubbleColor = "#00FF00";
     public int bubbleSize = 50;
     public string userId = null;
+    public string itemType = null;
 }
