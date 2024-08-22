@@ -89,8 +89,8 @@
 
       }
       #background {
-          background-image: repeating-radial-gradient(circle at var(--x) var(--y), gray, gray 2px, transparent 2px, transparent 10px),
-                            repeating-conic-gradient(at var(--x) var(--y), gray, gray 2deg, transparent 2deg, transparent 20deg);
+          background-image: repeating-radial-gradient(circle at var(--x) var(--y), rgba(128, 128, 128, .25), rgba(128, 128, 128, .25) 2px, transparent 2px, transparent 31.4px),
+                            repeating-conic-gradient(at var(--x) var(--y), rgba(128, 128, 128, .25), rgba(128, 128, 128, .25) 2deg, transparent 2deg, transparent 22.5deg);
       }
       #background-animation {
           scale: 1.5;
@@ -172,8 +172,6 @@
       #minimap-header.grabbing + #units-container {
         pointer-events: none; /* Disable interaction during dragging */
       }
-
-
 
       @keyframes expand {
         from {
