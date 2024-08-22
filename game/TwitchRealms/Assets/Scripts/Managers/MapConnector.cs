@@ -89,11 +89,11 @@ public class MapConnector : MonoBehaviour
     private IEnumerator UpdateLobby()
     {
         Vector3 planeScale = planeTransform.localScale;
-        float planeSizeX = 10f * planeScale.x;
-        float planeSizeZ = 10f * planeScale.z;
+        float planeSizeX = 5 * planeScale.x;
+        float planeSizeZ = 5 * planeScale.z;
         Vector3 planeCenter = planeTransform.position;
-        Vector3 planeMin = planeCenter - new Vector3(planeSizeX / 2f, 0f, planeSizeZ / 2f);
-        Vector3 planeMax = planeCenter + new Vector3(planeSizeX / 2f, 0f, planeSizeZ / 2f);
+        Vector3 planeMin = planeCenter - new Vector3(planeSizeX, 0f, planeSizeZ);
+        Vector3 planeMax = planeCenter + new Vector3(planeSizeX, 0f, planeSizeZ);
 
         while (websocket != null)
         {
