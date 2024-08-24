@@ -77,6 +77,17 @@ public class MapConnector : MonoBehaviour
             stylesBuilder.Append("0% { transform: rotate(0deg) }");
             stylesBuilder.Append("100% { transform: rotate(360deg) }");
             stylesBuilder.Append("}");
+            stylesBuilder.Append("@keyframes fadeInOut {");
+            stylesBuilder.Append("0%, 100% { opacity: 0; }");
+            stylesBuilder.Append("50% { opacity: 1; }");
+            stylesBuilder.Append("}");
+            stylesBuilder.Append("@keyframes wave {");
+            stylesBuilder.Append("0% { transform: rotate(0deg); }");
+            stylesBuilder.Append("25% { transform: rotate(5deg); }");
+            stylesBuilder.Append("50% { transform: rotate(-5deg); }");
+            stylesBuilder.Append("75% { transform: rotate(5deg); }");
+            stylesBuilder.Append("100% { transform: rotate(0deg); }");
+            stylesBuilder.Append("}");
             stylesBuilder.Append("\"} }"); // Close: data, root
 
             string styles = stylesBuilder.ToString();
