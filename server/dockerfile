@@ -22,5 +22,6 @@ COPY --from=builder /app/target/release/server .
 
 ENV ROCKET_ADDRESS=0.0.0.0
 ENV ROCKET_LOG_LEVEL=normal
+ENV ROCKET_PORT=8000
 
 CMD ["./server"]

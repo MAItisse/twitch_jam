@@ -4,5 +4,3 @@ services:
     tty: true
     ports:
       - 8000:8000
-    environment:
-      ROCKET_PORT: 8000

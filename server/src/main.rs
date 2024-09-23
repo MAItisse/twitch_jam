@@ -48,11 +48,6 @@ use rocket::response::status;
 use rocket::serde::json::Json;
 use rocket::tokio::sync;
 use rocket::{Request, State};
-use rocket_okapi::okapi::openapi3::{Response, Responses};
-use rocket_okapi::okapi::schemars;
-use rocket_okapi::response::OpenApiResponderInner;
-use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig};
-use rocket_okapi::{openapi, openapi_get_routes, JsonSchema};
 use serde::{Deserialize, Serialize};
 
 /// The host we are at
@@ -119,27 +114,6 @@ enum Errors {
     Unknown(String),
 }
 
-impl OpenApiResponderInner for Errors {
-    fn responses(_: &mut rocket_okapi::gen::OpenApiGenerator) -> rocket_okapi::Result<Responses> {
-        let mut responses = Responses::default();
-        responses.responses.entry("404".to_owned()).or_insert(
-            Response {
-                description: "The resource was not found.".to_owned(),
-                ..Default::default()
-            }
-            .into(),
-        );
-        responses.responses.entry("409".to_owned()).or_insert(
-            Response {
-                description: "You attempted to create a resource that already exsists".to_owned(),
-                ..Default::default()
-            }
-            .into(),
-        );
-        Ok(responses)
-    }
-}
-
 /// Extension for Result for convenient shit
 trait ResultExt<T, E> {
     /// Unknwon with custom msg
@@ -186,7 +160,6 @@ fn default_catcher(status: Status, _request: &Request) -> Json<GenericError> {
 }
 
 /// Return a simple message to show we are working
-#[openapi]
 #[get("/")]
 const fn index() -> &'static str {
     "I am online!"
@@ -195,7 +168,6 @@ const fn index() -> &'static str {
 /// Create a new lobby for the specifed user
 ///
 /// Returns a key to be used when connecting to `/lobby/connect/streamer`
-#[openapi]
 #[post("/lobby/new?<user>")]
 fn new_lobby(user: &str, lobbies: &State<Lobbies>) -> Result<status::Created<String>, Errors> {
     let user = Arc::from(user);
@@ -217,7 +189,6 @@ fn new_lobby(user: &str, lobbies: &State<Lobbies>) -> Result<status::Created<Str
 }
 
 /// Connect to the lobby as a streamer
-#[openapi(skip)]
 #[get("/lobby/connect/streamer?<user>&<key>")]
 fn connect_streamer<'a>(
     ws: ws::WebSocket,
@@ -295,7 +266,6 @@ fn connect_streamer<'a>(
 }
 
 /// Connect to the lobby
-#[openapi(skip)]
 #[get("/lobby/connect?<user>")]
 fn connect_user(
     ws: ws::WebSocket,
@@ -360,16 +330,9 @@ fn rocket() -> _ {
     rocket::build()
         .mount(
             "/",
-            openapi_get_routes![index, new_lobby, connect_streamer, connect_user],
+            routes![index, new_lobby, connect_streamer, connect_user],
         )
         .register("/", catchers![default_catcher])
-        .mount(
-            "/swagger-ui/",
-            make_swagger_ui(&SwaggerUIConfig {
-                url: "../openapi.json".to_owned(),
-                ..Default::default()
-            }),
-        )
         .manage(Lobbies::default())
         .attach(cors.to_cors().expect("Failed to create cors"))
 }
