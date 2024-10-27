@@ -300,6 +300,10 @@ fn connect_user(
             let client_stream = async move {
                 while let Some(Ok(message)) = connection_recv.next().await {
                     if !message.is_close() {
+                        if message.len() >= 1000 {
+                            warn!("Client sent message of length {}", message.len());
+                            continue;
+                        }
                         let _ = channel_send.send(message).await;
                     }
                 }
