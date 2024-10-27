@@ -40,6 +40,7 @@
 extern crate rocket;
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
+use std::time::Instant;
 
 use log::{error, warn};
 use rocket::futures::{SinkExt, StreamExt};
@@ -298,13 +299,28 @@ fn connect_user(
             let (mut connection_send, mut connection_recv) = connection.split();
 
             let client_stream = async move {
+                // We can only create a instant from the current time,
+                // because its a moment in time and not a timestamp (does that make sense?)
+                let mut is_first_message = true;
+                let mut last_accepted_message_time = Instant::now();
+
                 while let Some(Ok(message)) = connection_recv.next().await {
                     if !message.is_close() {
                         if message.len() >= 1000 {
                             warn!("Client sent message of length {}", message.len());
                             continue;
                         }
-                        let _ = channel_send.send(message).await;
+
+                        if is_first_message
+                            || Instant::now()
+                                .saturating_duration_since(last_accepted_message_time)
+                                .as_millis()
+                                >= 20
+                        {
+                            is_first_message = false;
+                            last_accepted_message_time = Instant::now();
+                            let _ = channel_send.send(message).await;
+                        }
                     }
                 }
                 info!("CLIENT: Websocket closed!");
